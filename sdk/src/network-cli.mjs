@@ -32,6 +32,8 @@ const HELP = `Quantum Seal Wallet — network tools
   prepare-sol    --config network.json --wallet wallet.json --to BASE58 --amount 0.01 --out intent.bin
   prepare-token  --config network.json --wallet wallet.json --source TOKEN_ACCOUNT --mint BASE58
                  --destination TOKEN_ACCOUNT --amount 1.25 --out intent.bin
+                 Both prepare commands accept --fee-refund-to FEE_PAYER --fee-refund-lamports N:
+                 the wallet then reimburses the fee payer (at most 10,000,000 lamports).
   execute        --config network.json --wallet wallet.json --proof approval.json [--proof second.json]
                  --payer FEE_PAYER_PUBLIC_KEY
 
@@ -141,7 +143,16 @@ async function main() {
       'max-fee-lamports',
       'compute-unit-price',
     ],
-    'prepare-sol': ['config', 'wallet', 'to', 'amount', 'out', 'expires-in-slots'],
+    'prepare-sol': [
+      'config',
+      'wallet',
+      'to',
+      'amount',
+      'out',
+      'expires-in-slots',
+      'fee-refund-to',
+      'fee-refund-lamports',
+    ],
     'prepare-token': [
       'config',
       'wallet',
@@ -151,6 +162,8 @@ async function main() {
       'amount',
       'out',
       'expires-in-slots',
+      'fee-refund-to',
+      'fee-refund-lamports',
     ],
     execute: [
       'config',
@@ -263,7 +276,15 @@ async function main() {
         ? ['to', 'amount', 'out']
         : ['source', 'mint', 'destination', 'amount', 'out'],
     );
-    const args = { ...values, expiresInSlots: values['expires-in-slots'] };
+    if (!values['fee-refund-to'] !== !values['fee-refund-lamports'])
+      throw new Error('Use --fee-refund-to and --fee-refund-lamports together.');
+    const args = {
+      ...values,
+      expiresInSlots: values['expires-in-slots'],
+      feeRefund: values['fee-refund-to']
+        ? { to: values['fee-refund-to'], lamports: values['fee-refund-lamports'] }
+        : undefined,
+    };
     const result =
       command === 'prepare-sol'
         ? await prepareSolTransfer(network, descriptor, args)

@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { Keypair, PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js';
 import { sha256 } from '@noble/hashes/sha2.js';
-import { hex, concat, u64 } from '../sdk/src/codec.mjs';
+import { hex, concat, u64, encodeIntent, decodeIntent } from '../sdk/src/codec.mjs';
 import { generateKeypair, signApproval, serializeApproval } from '../sdk/src/crypto.mjs';
 import { openNetwork } from '../sdk/src/network.mjs';
 import {
@@ -14,8 +14,8 @@ import {
   prepareTokenTransfer,
   executeApprovals,
 } from '../sdk/src/wallet.mjs';
-import { TOKEN_PROGRAM } from '../sdk/src/instructions.mjs';
-import { submit } from '../sdk/src/client.mjs';
+import { TOKEN_PROGRAM, executeInstruction } from '../sdk/src/instructions.mjs';
+import { submit, uploadApproval } from '../sdk/src/client.mjs';
 
 if (process.env.QS_ISOLATED_LOCALNET !== '1')
   throw new Error('Run only inside the network-disabled local validator container.');
@@ -144,6 +144,106 @@ try {
   );
   assert.equal(events.length, before);
   check('replayed approval is rejected before spending additional fees');
+
+  // Fee refund (version-2 intent): the wallet reimburses the fee payer it names.
+  const refund = 90000n;
+  const refunded = await prepareSolTransfer(network, descriptor, {
+    to: recipient,
+    amount: '0.003',
+    expiresInSlots: 20000n,
+    feeRefund: { to: payer.publicKey, lamports: refund },
+  });
+  assert.equal(refunded.bytes[0], 2);
+  const refundApproval = serializeApproval(signApproval(refunded.bytes, owner.secretKey, 0));
+  const refundProof = await uploadApproval(network.connection, payer, refundApproval, {
+    network,
+    expectedProgram: network.program,
+    expectedWallet: descriptor.wallet,
+    onRecord: record,
+  });
+  // Pointing the refund at any other account must fail even with a valid proof.
+  const tampered = executeInstruction(refunded.bytes, [refundProof]);
+  tampered.keys[tampered.keys.length - 1] = {
+    pubkey: recipient,
+    isWritable: true,
+    isSigner: false,
+  };
+  await assert.rejects(
+    submit(network.connection, payer, [tampered], {
+      network,
+      label: 'tampered-refund',
+      onRecord: record,
+    }),
+    /Simulation rejected/,
+  );
+  check('execution rejects a fee-refund account other than the signed one');
+  const walletBefore = (await walletStatus(network, descriptor)).balanceLamports;
+  const recipientBefore = BigInt(await network.connection.getBalance(recipient, 'confirmed'));
+  let executeFee = 0n,
+    payerBeforeExecute = null;
+  const refundedSend = await executeApprovals(network, payer, descriptor, [refundApproval], {
+    onRecord: async (r) => {
+      if (r.label === 'execute-wallet-transfer' && r.phase === 'prepared')
+        payerBeforeExecute = BigInt(
+          await network.connection.getBalance(payer.publicKey, 'confirmed'),
+        );
+      if (r.label === 'execute-wallet-transfer' && r.phase === 'confirmed')
+        executeFee = BigInt(r.feeLamports);
+      record(r);
+    },
+  });
+  assert.equal(refundedSend.executed, true);
+  const walletAfter = (await walletStatus(network, descriptor)).balanceLamports;
+  assert.equal(walletBefore - walletAfter, 3000000n + refund);
+  assert.equal(
+    BigInt(await network.connection.getBalance(recipient, 'confirmed')) - recipientBefore,
+    3000000n,
+  );
+  const executeRecord = events.findLast(
+    (e) => e.label === 'execute-wallet-transfer' && e.phase === 'confirmed',
+  );
+  const executeTx = await network.connection.getTransaction(executeRecord.signature, {
+    commitment: 'confirmed',
+    maxSupportedTransactionVersion: 0,
+  });
+  const payerIndex = executeTx.transaction.message.staticAccountKeys.findIndex((k) =>
+    k.equals(payer.publicKey),
+  );
+  assert.equal(
+    BigInt(executeTx.meta.postBalances[payerIndex]) -
+      BigInt(executeTx.meta.preBalances[payerIndex]),
+    refund - executeFee,
+  );
+  assert.ok(payerBeforeExecute !== null);
+  check('a version-2 transfer pays the exact signed fee refund from the wallet');
+
+  // The program itself refuses approvals that expire beyond the one-day horizon.
+  const state = (await walletStatus(network, descriptor)).state;
+  const far = encodeIntent({
+    genesis: new PublicKey(network.genesis),
+    program: new PublicKey(network.program),
+    wallet: new PublicKey(descriptor.wallet),
+    epoch: state.epoch,
+    nonce: state.nonce,
+    expiry: BigInt(await network.connection.getSlot('confirmed')) + 300000n,
+    action: { kind: 'transfer', to: recipient, lamports: 1000n },
+  });
+  assert.equal(decodeIntent(far).fee, null);
+  await assert.rejects(
+    uploadApproval(
+      network.connection,
+      payer,
+      serializeApproval(signApproval(far, owner.secretKey, 0)),
+      {
+        network,
+        expectedProgram: network.program,
+        expectedWallet: descriptor.wallet,
+        onRecord: record,
+      },
+    ),
+    /Simulation rejected/,
+  );
+  check('the program refuses approvals that expire beyond the horizon');
   // Create synthetic classic SPL accounts only inside the isolated validator.
   const mint = await Keypair.generate(),
     source = await Keypair.generate(),
@@ -205,7 +305,9 @@ try {
     destination: destination.publicKey,
     amount: '1.25',
     expiresInSlots: 20000n,
+    feeRefund: { to: payer.publicKey, lamports: 50000n },
   });
+  const tokenWalletBefore = (await walletStatus(network, descriptor)).balanceLamports;
   const tokenApproval = serializeApproval(signApproval(token.bytes, owner.secretKey, 0));
   const tokenSent = await executeApprovals(network, payer, descriptor, [tokenApproval], {
     onRecord: record,
@@ -216,7 +318,12 @@ try {
     String((await network.connection.getTokenAccountBalance(destination.publicKey)).value.amount),
     '1250000',
   );
+  assert.equal(
+    tokenWalletBefore - (await walletStatus(network, descriptor)).balanceLamports,
+    50000n,
+  );
   check('classic SPL amount is read from mint decimals and transferred exactly');
+  check('a token transfer through the CPI path also pays its signed fee refund');
   writeFileSync('.runtime/network-test.network.json', JSON.stringify(config));
   writeFileSync('.runtime/network-wallet.json', JSON.stringify(descriptor));
   const cli = (args) =>

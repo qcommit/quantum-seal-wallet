@@ -292,3 +292,110 @@ fn all_one_to_three_owner_threshold_subsets_match_the_policy() {
         }
     }
 }
+
+fn transfer() -> Vec<u8> {
+    let mut a = vec![0];
+    a.extend([7; 32]);
+    a.extend(5u64.to_le_bytes());
+    a
+}
+fn v2(action: &[u8], to: [u8; 32], lamports: u64) -> Vec<u8> {
+    let mut b = intent(action);
+    b[0] = 2;
+    b.extend(to);
+    b.extend(lamports.to_le_bytes());
+    b
+}
+
+#[test]
+fn version_two_intents_carry_a_bounded_fee_refund() {
+    let i = Intent::decode(&v2(&transfer(), [9; 32], 80_000)).unwrap();
+    assert_eq!(
+        i.fee,
+        Some(FeeRefund {
+            to: [9; 32],
+            lamports: 80_000
+        })
+    );
+    assert_eq!(Intent::decode(&intent(&transfer())).unwrap().fee, None);
+    assert_eq!(
+        Intent::decode(&v2(&transfer(), [9; 32], MAX_FEE_REFUND))
+            .unwrap()
+            .fee
+            .unwrap()
+            .lamports,
+        MAX_FEE_REFUND
+    );
+    for (to, lamports) in [
+        ([9; 32], 0),
+        ([9; 32], MAX_FEE_REFUND + 1),
+        ([0; 32], 1),
+        ([3; 32], 1), // the wallet itself
+        ([2; 32], 1), // the wallet program
+    ] {
+        assert_eq!(
+            Intent::decode(&v2(&transfer(), to, lamports)),
+            Err(Error::InvalidFeeRefund)
+        );
+    }
+    // A version-2 intent must carry the fee block, and nothing may follow it.
+    let mut missing = intent(&transfer());
+    missing[0] = 2;
+    assert_eq!(Intent::decode(&missing), Err(Error::InvalidData));
+    let mut trailing = v2(&transfer(), [9; 32], 1);
+    trailing.push(0);
+    assert_eq!(Intent::decode(&trailing), Err(Error::InvalidData));
+    let mut v3 = intent(&transfer());
+    v3[0] = 3;
+    assert_eq!(Intent::decode(&v3), Err(Error::InvalidData));
+}
+
+#[test]
+fn largest_invocation_with_a_fee_refund_fits_the_intent_limit() {
+    let mut action = vec![4];
+    action.extend([4; 32]);
+    action.push(12);
+    for i in 0..12u8 {
+        action.extend([i + 10; 32]);
+        action.push(1);
+    }
+    action.extend(256u16.to_le_bytes());
+    action.extend([0; 256]);
+    let bytes = v2(&action, [9; 32], 1);
+    assert!(bytes.len() <= MAX_INTENT_BYTES);
+    assert!(Intent::decode(&bytes).is_ok());
+}
+
+#[test]
+fn approvals_cannot_expire_beyond_the_horizon() {
+    let w = wallet();
+    assert!(w.check_live(0, 0, 100 + MAX_EXPIRY_HORIZON, 100).is_ok());
+    assert_eq!(
+        w.check_live(0, 0, 101 + MAX_EXPIRY_HORIZON, 100),
+        Err(Error::ExpiryTooFar)
+    );
+    assert!(w.check_live(0, 0, u64::MAX, u64::MAX - 5).is_ok());
+}
+
+#[test]
+fn mainnet_wallets_need_a_day_long_recovery_delay() {
+    let short = policy();
+    assert!(Wallet::new(1, [4; 32], [5; 32], short).is_ok());
+    assert_eq!(
+        Wallet::new(1, [4; 32], MAINNET_GENESIS, short).err(),
+        Some(Error::InvalidPolicy)
+    );
+    let day = Policy {
+        recovery_delay: MIN_MAINNET_RECOVERY_DELAY,
+        ..short
+    };
+    let mut w = Wallet::new(1, [4; 32], MAINNET_GENESIS, day).unwrap();
+    // Rotation on mainnet is held to the same floor; disabling recovery stays allowed.
+    assert_eq!(w.rotate(short), Err(Error::InvalidPolicy));
+    let none = Policy {
+        guardian: [0; 32],
+        recovery_delay: 0,
+        ..short
+    };
+    assert!(w.rotate(none).is_ok());
+}

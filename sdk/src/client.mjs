@@ -2,7 +2,7 @@ import { guardConnection, requireLoopback } from './network.mjs';
 import { submitNetwork } from './transport.mjs';
 import { Transaction, ComputeBudgetProgram } from '@solana/web3.js';
 import { decodeWallet, decodeProofHeader, hex, MAX_CHUNK_BYTES, address } from './codec.mjs';
-import { parseApproval, verifyApproval } from './crypto.mjs';
+import { parseApproval, verifyApproval } from './approval.mjs';
 import {
   beginInstruction,
   appendInstruction,

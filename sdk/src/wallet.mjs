@@ -1,4 +1,3 @@
-import { randomBytes } from 'node:crypto';
 import { SystemProgram } from '@solana/web3.js';
 import {
   address,
@@ -13,9 +12,12 @@ import {
   displayIntent,
   WALLET_BYTES,
   PROOF_BYTES,
+  MAX_FEE_REFUND,
+  MAINNET_GENESIS,
+  MIN_MAINNET_RECOVERY_DELAY,
 } from './codec.mjs';
 import { parseStrictJson } from './strict-json.mjs';
-import { parseApproval, verifyApproval } from './crypto.mjs';
+import { parseApproval, verifyApproval, randomBytes } from './approval.mjs';
 import { assertNetwork } from './network.mjs';
 import { integerAmount } from './transport.mjs';
 import {
@@ -61,8 +63,22 @@ function normalizedPolicy(policy) {
   };
 }
 
+function feeRefund(value) {
+  if (value === undefined || value === null) return null;
+  const lamports = integerAmount(value.lamports, 'fee refund');
+  if (lamports < 1n || lamports > MAX_FEE_REFUND)
+    throw new Error(`Fee refund must be 1–${MAX_FEE_REFUND} lamports.`);
+  return { to: address(value.to), lamports };
+}
+
 export async function createDescriptor({ program, genesis, policy, salt = randomBytes(32) }) {
   policy = normalizedPolicy(policy);
+  if (
+    address(genesis).toBase58() === MAINNET_GENESIS &&
+    policy.guardian &&
+    BigInt(policy.recoveryDelay) < MIN_MAINNET_RECOVERY_DELAY
+  )
+    throw new Error('Mainnet recovery needs a delay of at least 216,000 slots (about one day).');
   const result = await deriveWallet(program, genesis, salt, policy);
   return {
     format: 'quantum-seal/wallet-descriptor/1',
@@ -175,7 +191,7 @@ export async function initializeWallet(network, payer, input, options = {}) {
   return { alreadyInitialized: false, wallet: d.wallet, receipt };
 }
 
-async function liveIntent(network, input, action, expiresInSlots) {
+async function liveIntent(network, input, action, expiresInSlots, fee = null) {
   const current = await walletStatus(network, input);
   if (!current.initialized) throw new Error('Initialize the wallet before preparing a transfer.');
   const horizon = integerAmount(expiresInSlots ?? 3000n, 'expiry horizon');
@@ -191,22 +207,29 @@ async function liveIntent(network, input, action, expiresInSlots) {
     nonce: state.nonce,
     expiry: now + horizon,
     action,
+    fee,
   });
   return { current, bytes, summary: displayIntent(decodeIntent(bytes)) };
 }
 
-export async function prepareSolTransfer(network, descriptor, { to, amount, expiresInSlots } = {}) {
+export async function prepareSolTransfer(
+  network,
+  descriptor,
+  { to, amount, expiresInSlots, feeRefund: refund } = {},
+) {
   const lamports = parseUnits(amount, 9);
   const destination = address(to);
+  const fee = feeRefund(refund);
   const result = await liveIntent(
     network,
     descriptor,
     { kind: 'transfer', to: destination, lamports },
     expiresInSlots,
+    fee,
   );
   if (destination.toBase58() === result.current.descriptor.wallet)
     throw new Error('Self-transfers are not supported.');
-  if (lamports > result.current.availableLamports)
+  if (lamports + (fee?.lamports ?? 0n) > result.current.availableLamports)
     throw new Error('Insufficient wallet balance after retaining the rent reserve.');
   const target = await network.connection.getAccountInfo(destination, network.commitment);
   if (target?.executable) throw new Error('SOL recipient is an executable program.');
@@ -221,8 +244,9 @@ export async function prepareSolTransfer(network, descriptor, { to, amount, expi
 export async function prepareTokenTransfer(
   network,
   descriptor,
-  { source, mint, destination, amount, expiresInSlots } = {},
+  { source, mint, destination, amount, expiresInSlots, feeRefund: refund } = {},
 ) {
+  const fee = feeRefund(refund);
   await assertNetwork(network.connection, network);
   const d = await pinnedDescriptor(network, descriptor);
   const accounts = await Promise.all(
@@ -261,7 +285,9 @@ export async function prepareTokenTransfer(
     amount: quantity,
     decimals: token[44],
   });
-  const result = await liveIntent(network, d, action, expiresInSlots);
+  const result = await liveIntent(network, d, action, expiresInSlots, fee);
+  if ((fee?.lamports ?? 0n) > result.current.availableLamports)
+    throw new Error('Insufficient SOL in the wallet for the fee refund.');
   return {
     bytes: result.bytes,
     summary: result.summary,
@@ -307,9 +333,12 @@ export async function validateApprovals(network, input, approvals) {
     i.expiry < slot
   )
     throw new Error('Approval is expired, replayed, or for another cluster/policy epoch.');
+  const refund = i.fee?.lamports ?? 0n;
+  if (refund > current.availableLamports)
+    throw new Error('Insufficient spendable SOL for the fee refund.');
   if (i.action.kind === 'transfer') {
     if (
-      i.action.lamports > current.availableLamports ||
+      i.action.lamports + refund > current.availableLamports ||
       i.action.to.toBase58() === current.descriptor.wallet
     )
       throw new Error('Invalid recipient or insufficient spendable SOL.');

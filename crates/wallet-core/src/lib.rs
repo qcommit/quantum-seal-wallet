@@ -15,6 +15,20 @@ pub const GUARDIAN_INDEX: u8 = 255;
 pub const CONTEXT: &[u8] = b"QuantumSeal.Wallet.v1";
 pub const WALLET_MAGIC: [u8; 8] = *b"QSWAL001";
 pub const PROOF_MAGIC: [u8; 8] = *b"QSPRF001";
+/// Shortest guardian recovery delay on test clusters (~1 minute).
+pub const MIN_RECOVERY_DELAY: u64 = 150;
+/// Shortest guardian recovery delay on mainnet (~1 day), long enough for owners to veto.
+pub const MIN_MAINNET_RECOVERY_DELAY: u64 = 216_000;
+pub const MAX_RECOVERY_DELAY: u64 = 2_000_000;
+/// Approvals may not expire further than this many slots ahead (~1 day).
+pub const MAX_EXPIRY_HORIZON: u64 = 216_000;
+/// Upper bound on the fee reimbursement a version-2 intent may pay to its fee key.
+pub const MAX_FEE_REFUND: u64 = 10_000_000;
+/// Solana mainnet-beta genesis hash.
+pub const MAINNET_GENESIS: [u8; 32] = [
+    69, 41, 105, 152, 166, 248, 226, 167, 132, 219, 93, 159, 149, 225, 143, 194, 63, 112, 68, 26,
+    16, 57, 68, 104, 1, 8, 152, 121, 176, 140, 126, 240,
+];
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[repr(u32)]
@@ -42,6 +56,8 @@ pub enum Error {
     UnsafeInvocation,
     Locked,
     AccountMismatch,
+    ExpiryTooFar,
+    InvalidFeeRefund,
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -86,8 +102,19 @@ impl Policy {
             if self.recovery_delay != 0 {
                 return Err(Error::InvalidPolicy);
             }
-        } else if !(150..=2_000_000).contains(&self.recovery_delay)
+        } else if !(MIN_RECOVERY_DELAY..=MAX_RECOVERY_DELAY).contains(&self.recovery_delay)
             || self.owners.keys.contains(&self.guardian)
+        {
+            return Err(Error::InvalidPolicy);
+        }
+        Ok(())
+    }
+    /// Cluster-aware validation: mainnet wallets need a recovery delay owners can react to.
+    pub fn validate_for(&self, genesis: &[u8; 32]) -> Result<()> {
+        self.validate()?;
+        if *genesis == MAINNET_GENESIS
+            && self.guardian != [0; 32]
+            && self.recovery_delay < MIN_MAINNET_RECOVERY_DELAY
         {
             return Err(Error::InvalidPolicy);
         }
@@ -123,7 +150,7 @@ pub struct Wallet {
 
 impl Wallet {
     pub fn new(bump: u8, id: [u8; 32], genesis: [u8; 32], policy: Policy) -> Result<Self> {
-        policy.validate()?;
+        policy.validate_for(&genesis)?;
         Ok(Self {
             magic: WALLET_MAGIC,
             bump,
@@ -147,6 +174,9 @@ impl Wallet {
         if expiry < slot {
             return Err(Error::Expired);
         }
+        if expiry > slot.saturating_add(MAX_EXPIRY_HORIZON) {
+            return Err(Error::ExpiryTooFar);
+        }
         Ok(())
     }
     pub fn bump_nonce(&mut self) -> Result<()> {
@@ -158,7 +188,7 @@ impl Wallet {
         self.recovery_owners = Owners::default();
     }
     pub fn rotate(&mut self, policy: Policy) -> Result<()> {
-        policy.validate()?;
+        policy.validate_for(&self.genesis)?;
         let epoch = self.epoch.checked_add(1).ok_or(Error::Overflow)?;
         self.policy = policy;
         self.epoch = epoch;
@@ -246,6 +276,13 @@ pub enum Action {
     },
 }
 
+/// Version-2 intents reimburse the account that paid the transaction fees.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct FeeRefund {
+    pub to: [u8; 32],
+    pub lamports: u64,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Intent {
     pub genesis: [u8; 32],
@@ -255,6 +292,7 @@ pub struct Intent {
     pub nonce: u64,
     pub expiry: u64,
     pub action: Action,
+    pub fee: Option<FeeRefund>,
 }
 
 pub struct Reader<'a>(pub &'a [u8]);
@@ -294,7 +332,8 @@ impl Intent {
             return Err(Error::InvalidData);
         }
         let mut r = Reader(bytes);
-        if r.byte()? != 1 {
+        let version = r.byte()?;
+        if version != 1 && version != 2 {
             return Err(Error::InvalidData);
         }
         let genesis = r.array()?;
@@ -364,6 +403,21 @@ impl Intent {
             }
             _ => return Err(Error::InvalidData),
         };
+        let fee = if version == 2 {
+            let to = r.array()?;
+            let lamports = r.u64()?;
+            if lamports == 0
+                || lamports > MAX_FEE_REFUND
+                || to == [0; 32]
+                || to == wallet
+                || to == program
+            {
+                return Err(Error::InvalidFeeRefund);
+            }
+            Some(FeeRefund { to, lamports })
+        } else {
+            None
+        };
         r.end()?;
         Ok(Self {
             genesis,
@@ -373,6 +427,7 @@ impl Intent {
             nonce,
             expiry,
             action,
+            fee,
         })
     }
 }

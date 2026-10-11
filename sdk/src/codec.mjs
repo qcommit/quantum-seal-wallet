@@ -10,6 +10,10 @@ export const PROOF_HEADER_BYTES = 193;
 export const PROOF_BYTES = 8049;
 export const MAX_CHUNK_BYTES = 768;
 export const GUARDIAN_INDEX = 255;
+export const MAX_FEE_REFUND = 10000000n;
+export const MAX_EXPIRY_HORIZON = 216000n;
+export const MIN_MAINNET_RECOVERY_DELAY = 216000n;
+export const MAINNET_GENESIS = '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d';
 const zero32 = new Uint8Array(32);
 const utf8 = new TextEncoder();
 
@@ -206,7 +210,7 @@ export function decodeProofHeader(bytes) {
 
 export function encodeIntent(intent) {
   const head = concat(
-    Uint8Array.of(1),
+    Uint8Array.of(intent.fee ? 2 : 1),
     address(intent.genesis).toBytes(),
     address(intent.program).toBytes(),
     address(intent.wallet).toBytes(),
@@ -258,14 +262,18 @@ export function encodeIntent(intent) {
     default:
       throw new Error('Unknown action.');
   }
-  const bytes = concat(head, tail);
+  const fee = intent.fee
+    ? concat(address(intent.fee.to).toBytes(), u64(intent.fee.lamports))
+    : new Uint8Array(0);
+  const bytes = concat(head, tail, fee);
   decodeIntent(bytes);
   return bytes;
 }
 export function decodeIntent(bytes) {
   if (bytes.length > MAX_INTENT_BYTES) throw new Error('Intent is too large.');
   const r = new Reader(bytes);
-  if (r.byte() !== 1) throw new Error('Unsupported intent version.');
+  const version = r.byte();
+  if (version !== 1 && version !== 2) throw new Error('Unsupported intent version.');
   const genesis = address(r.take(32)),
     program = address(r.take(32)),
     wallet = address(r.take(32));
@@ -318,8 +326,22 @@ export function decodeIntent(bytes) {
     default:
       throw new Error('Unknown action.');
   }
+  let fee = null;
+  if (version === 2) {
+    const to = address(r.take(32)),
+      lamports = r.u64();
+    if (
+      lamports === 0n ||
+      lamports > MAX_FEE_REFUND ||
+      to.equals(PublicKey.default) ||
+      to.equals(wallet) ||
+      to.equals(program)
+    )
+      throw new Error('Invalid fee refund.');
+    fee = { to, lamports };
+  }
   r.end();
-  return { genesis, program, wallet, epoch, nonce, expiry, action };
+  return { genesis, program, wallet, epoch, nonce, expiry, action, fee };
 }
 export function intentDigest(bytes) {
   decodeIntent(bytes);

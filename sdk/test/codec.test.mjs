@@ -132,3 +132,33 @@ test('local research client refuses public or ambiguous RPC hosts', () => {
   ])
     assert.throws(() => requireLocalConnection(new Connection(url)));
 });
+
+test('version-2 intents carry a bounded fee refund and round trip', async () => {
+  const { executeInstruction } = await import('../src/instructions.mjs');
+  const fee = { to: new PublicKey(key(9)), lamports: 80000n };
+  const bytes = encodeIntent({ ...base, fee });
+  assert.equal(bytes[0], 2);
+  assert.equal(bytes.length, 162 + 40);
+  const decoded = decodeIntent(bytes);
+  assert.ok(decoded.fee.to.equals(fee.to));
+  assert.equal(decoded.fee.lamports, 80000n);
+  assert.deepEqual(encodeIntent(decoded), bytes);
+  assert.equal(decodeIntent(encodeIntent(base)).fee, null);
+  assert.notEqual(hex(intentDigest(bytes)), hex(intentDigest(encodeIntent(base))));
+  for (const bad of [
+    { to: fee.to, lamports: 0n },
+    { to: fee.to, lamports: 10000001n },
+    { to: base.wallet, lamports: 1n },
+    { to: base.program, lamports: 1n },
+    { to: PublicKey.default, lamports: 1n },
+  ])
+    assert.throws(() => encodeIntent({ ...base, fee: bad }));
+  for (let n = 163; n < bytes.length; n++) assert.throws(() => decodeIntent(bytes.slice(0, n)));
+  // The refund recipient is appended, writable, after the action accounts.
+  const proof = new PublicKey(key(7));
+  const ix = executeInstruction(bytes, [proof]);
+  const last = ix.keys.at(-1);
+  assert.ok(last.pubkey.equals(fee.to) && last.isWritable && !last.isSigner);
+  assert.equal(ix.keys.length, 4);
+  assert.equal(executeInstruction(encodeIntent(base), [proof]).keys.length, 3);
+});

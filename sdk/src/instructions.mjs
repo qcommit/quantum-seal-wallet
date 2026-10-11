@@ -86,6 +86,8 @@ export function executeInstruction(intentBytes, proofs) {
     // The PDA is signed only by invoke_signed inside the wallet program.
     for (const m of a.metas) keys.push(meta(m.key, m.writable));
   }
+  // Version-2 intents name the fee-refund recipient; it is always the last account.
+  if (intent.fee) keys.push(meta(intent.fee.to, true));
   return ix(intent.program, keys, Uint8Array.of(5, proofs.length), intentBytes);
 }
 export function finalizeRecoveryInstruction({ program, wallet }) {

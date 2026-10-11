@@ -384,11 +384,24 @@ try {
     assert.equal(afterFailure.locked, false);
   });
 
+  const guardianSpendBytes = await makeIntent({ kind: 'transfer', to, lamports: 5n }),
+    guardianSpendProof = await approve(guardianSpendBytes, guardian, 255);
+  await rejected(
+    'a verified guardian approval cannot authorize spending',
+    [executeInstruction(guardianSpendBytes, [guardianSpendProof])],
+    7011,
+  );
   const recoveryAction = { kind: 'recover', owners: { keys: [a.publicKey], threshold: 1 } };
   const recoveryBytes = await makeIntent(recoveryAction),
     recoveryProof = await approve(recoveryBytes, guardian, 255);
+  const beforeProposal = await walletState(connection, program, wallet);
   await send([executeInstruction(recoveryBytes, [recoveryProof])], {
     label: 'guardian-proposes-recovery',
+  });
+  const afterProposal = await walletState(connection, program, wallet);
+  check('a guardian proposal does not consume the owners nonce', () => {
+    assert.equal(afterProposal.nonce, beforeProposal.nonce);
+    assert.notEqual(afterProposal.recoveryReadyAt, 0n);
   });
   await rejected(
     'recovery cannot finalize before its delay',
@@ -437,6 +450,7 @@ try {
     r1,
     tokenProof,
     failProof,
+    guardianSpendProof,
     recoveryProof,
     cancelProof,
     nextProof,

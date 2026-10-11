@@ -56,7 +56,7 @@ recovery guardian. A guardian proof is accepted only for a recovery proposal.
 
 | Field | Bytes |
 |---|---:|
-| Version, exactly 1 | 1 |
+| Version, 1 or 2 | 1 |
 | Genesis hash | 32 |
 | Wallet program ID | 32 |
 | Wallet PDA | 32 |
@@ -66,7 +66,16 @@ recovery guardian. A guardian proof is accepted only for a recovery proposal.
 | Action discriminator | 1 |
 | Action payload | Variable |
 
-The whole intent is at most 850 bytes. Parsing must consume all bytes.
+Version 2 appends a fee refund after the action payload:
+
+| Field | Bytes |
+|---|---:|
+| Fee-refund recipient | 32 |
+| Fee-refund lamports, 1–10,000,000 | 8 |
+
+The recipient may not be zero, the wallet PDA or the wallet program. Version 1 has
+no refund block. The whole intent is at most 850 bytes; the largest version-2
+invocation is 849. Parsing must consume all bytes.
 
 | Action | Discriminator | Payload |
 |---|---:|---|
@@ -155,7 +164,9 @@ program persists progress only after its own cryptographic work succeeds. Native
 
 `w` means writable; `s` means an outer transaction signer. For transfer, the sole
 action account is the exact recipient. For CPI, action accounts are the executable
-callee followed by the exact signed metas. Policy operations take none.
+callee followed by the exact signed metas. Policy operations take none. A version-2
+intent adds the fee-refund recipient (w) as the final account; it must match the
+signed recipient and may not be the wallet or a proof account.
 
 Initialization uses top-up, allocate and assign, so unsolicited rent-exempt
 pre-funding does not prevent account creation. SOL transfers retain the wallet's
@@ -166,20 +177,35 @@ not change the wallet authority.
 
 Execution requires 1–3 distinct owner proofs meeting the current threshold, or
 exactly one guardian proof for a recovery proposal. Every proof must be fully
-verified and bind the same intent, epoch, nonce, expiry and wallet. The wallet
-nonce increments with the action. Failure rolls back both; there is no partially
-spent nonce. Integer overflow fails closed.
+verified and bind the same intent, epoch, nonce, expiry and wallet. Owner actions
+increment the wallet nonce with the action. Failure rolls back both; there is no
+partially spent nonce. Integer overflow fails closed.
+
+A guardian recovery proposal does **not** consume the nonce, so a guardian cannot
+invalidate the owners' in-flight approvals. It cannot be replayed: a second proposal
+is refused while one is pending, and cancellation or finalization advances the nonce.
+
+Approvals expire at an inclusive slot no more than 216,000 slots (about a day)
+after the slot at which they are used; the program rejects longer horizons.
+
+After the action, a version-2 intent moves its signed refund from the wallet to the
+named recipient, still retaining the wallet's rent-exempt reserve. Clients use it
+to reimburse the fee payer for the transactions of a send.
 
 Before CPI, the incremented nonce and a transient lock are persisted. The inner
 instruction gets only explicitly approved privileges. A failed CPI rolls back the
 lock and nonce. The successful outer instruction clears the lock.
 
-Rotation increments the epoch and clears pending recovery. A guardian proposal
+Rotation increments the epoch and clears pending recovery. On mainnet (identified
+by the wallet's committed genesis hash) a policy with a guardian needs a recovery
+delay of at least 216,000 slots, about a day, so owners have time to veto; other
+clusters accept 150 slots for testing. A guardian proposal
 records new owners and the earliest finalization slot. Existing owners may veto
 with a threshold-approved cancellation or rotation; **ordinary spending does not
 cancel recovery**. After the delay, anyone can finalize the recorded owners,
 incrementing epoch and nonce while retaining the wallet address and guardian.
 A cancellation and finalization racing after maturity are ordered by the chain.
 
-Errors are stable custom codes beginning at 7000. The canonical enumeration is
+Errors are stable custom codes beginning at 7000; 7023 (`ExpiryTooFar`) and 7024
+(`InvalidFeeRefund`) were added with version-2 intents. The canonical enumeration is
 `crates/wallet-core/src/lib.rs`; do not infer authorization success from logs alone.

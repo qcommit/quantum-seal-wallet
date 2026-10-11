@@ -77,7 +77,7 @@ The program is ready to deploy; nothing in this repository deploys it automatica
 Users hold their own keys and pay their own fees; there is no hosted relayer.
 
 - **Owner key (post-quantum):** an SLH-DSA key, encrypted locally, that approves transfers. It never leaves the user's device.
-- **Fee key (ordinary Solana):** a separate small Ed25519 key holding a little SOL for network fees. It submits the ~16 transactions a transfer needs but has no authority over the wallet's funds; losing it costs at most its fee balance.
+- **Fee key (ordinary Solana):** a separate small Ed25519 key holding a little SOL for network fees. It submits the ~16 transactions a transfer needs but has no authority over the wallet's funds; losing it costs at most its fee balance. Each transfer can carry a signed fee refund (version-2 intent) that the wallet pays back to the fee key, so its balance stays topped up.
 - **Wallet address:** the PDA. Deposits go here, and it stays the same across key rotation and recovery.
 
 Today both keys are managed with the command line. The intended consumer client is a **browser extension** in the style of Phantom: it keeps the owner key in extension storage, shows the decoded transfer in its own window before sealing, signs locally, and submits with the user's fee key. That client is a separate project and needs its own security review.
@@ -177,6 +177,7 @@ An included fixture and a localnet pass demonstrate bounded behavior, **not** a 
 | [docs/PROTOCOL.md](docs/PROTOCOL.md) | Signed byte format, PDA seeds, instruction ABI and recovery state machine |
 | [docs/CRYPTOGRAPHY.md](docs/CRYPTOGRAPHY.md) | Algorithm parameters and independent-verification boundaries |
 | [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) | Attack scenarios, mitigations and unaddressed risk |
+| [docs/SECURITY-REVIEW.md](docs/SECURITY-REVIEW.md) | Pre-deployment review of the on-chain program and how each finding was resolved |
 | [docs/RELEASE.md](docs/RELEASE.md) | Source-release and production-readiness checklist |
 
 ## Security and scope

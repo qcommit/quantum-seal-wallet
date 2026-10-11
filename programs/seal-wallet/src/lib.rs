@@ -341,8 +341,30 @@ fn execute(program: &Pubkey, accounts: &[AccountInfo], data: &[u8]) -> ChainResu
     }
     let guardian = matches!(intent.action, Action::ProposeRecovery(_));
     authorize(&wallet, &proofs, &digest, guardian, slot)?;
-    let remaining = &accounts[1 + count..];
-    wallet.bump_nonce()?;
+    let is_proof = |key: &Pubkey| accounts[1..=count].iter().any(|p| p.key == key);
+    // A version-2 intent names its fee-refund recipient; it is always the last account.
+    let (remaining, fee_account) = match intent.fee {
+        Some(fee) => {
+            let (last, rest) = accounts[1 + count..]
+                .split_last()
+                .ok_or(Error::AccountMismatch)?;
+            writable(last)?;
+            require(
+                last.key.to_bytes() == fee.to
+                    && last.key != wallet_account.key
+                    && !is_proof(last.key),
+                Error::AccountMismatch,
+            )?;
+            (rest, Some((last, fee.lamports)))
+        }
+        None => (&accounts[1 + count..], None),
+    };
+    // A guardian proposal does not consume the owners' nonce, so it cannot invalidate
+    // their in-flight approvals. It cannot be replayed: a second proposal is refused
+    // while one is pending, and cancellation or finalization advances the nonce.
+    if !guardian {
+        wallet.bump_nonce()?;
+    }
     match intent.action {
         Action::Transfer { to, lamports } => {
             exact(remaining, 1)?;
@@ -351,7 +373,7 @@ fn execute(program: &Pubkey, accounts: &[AccountInfo], data: &[u8]) -> ChainResu
             require(
                 target.key.to_bytes() == to
                     && target.key != wallet_account.key
-                    && !accounts[1..=count].iter().any(|p| p.key == target.key),
+                    && !is_proof(target.key),
                 Error::AccountMismatch,
             )?;
             let reserve = Rent::get()?.minimum_balance(WALLET_BYTES);
@@ -424,6 +446,20 @@ fn execute(program: &Pubkey, accounts: &[AccountInfo], data: &[u8]) -> ChainResu
             )?;
             wallet.locked = false;
         }
+    }
+    if let Some((recipient, lamports)) = fee_account {
+        let reserve = Rent::get()?.minimum_balance(WALLET_BYTES);
+        let left = wallet_account
+            .lamports()
+            .checked_sub(lamports)
+            .ok_or(Error::InsufficientFunds)?;
+        require(left >= reserve, Error::InsufficientFunds)?;
+        let received = recipient
+            .lamports()
+            .checked_add(lamports)
+            .ok_or(Error::Overflow)?;
+        **wallet_account.try_borrow_mut_lamports()? = left;
+        **recipient.try_borrow_mut_lamports()? = received;
     }
     save(wallet_account, &wallet, WALLET_BYTES)
 }

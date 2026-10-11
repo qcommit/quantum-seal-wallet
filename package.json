@@ -31,7 +31,12 @@
     "./codec": "./sdk/src/codec.mjs",
     "./crypto": "./sdk/src/crypto.mjs",
     "./network": "./sdk/src/network.mjs",
-    "./wallet": "./sdk/src/wallet.mjs"
+    "./wallet": "./sdk/src/wallet.mjs",
+    "./approval": "./sdk/src/approval.mjs",
+    "./keystore-web": "./sdk/src/keystore-web.mjs",
+    "./instructions": "./sdk/src/instructions.mjs",
+    "./client": "./sdk/src/client.mjs",
+    "./transport": "./sdk/src/transport.mjs"
   },
   "bin": {
     "qsw": "sdk/src/network-cli.mjs",
