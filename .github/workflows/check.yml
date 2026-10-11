@@ -67,6 +67,8 @@ jobs:
         run: |
           bash scripts/build-sbf.sh
           (cd target/deploy && sha256sum --check ../../PROGRAM_SHA256)
+      - name: Build the independent verifier (the network suite cross-checks with it)
+        run: cargo build --locked --release -p seal-verify
       - run: npm ci --ignore-scripts --no-fund
       - name: Local-validator suites
         run: bash scripts/test-localnet.sh
