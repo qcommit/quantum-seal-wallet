@@ -33,9 +33,22 @@ sha256sum --check PROGRAM_SHA256
   until the deployment completes, then it is no longer needed.
 - **Budget.** About 0.99 SOL of program rent, plus about the same held in the upload
   buffer during deployment and returned when it completes, plus fees. Fund ~2.1 SOL.
-- **Dependencies.** Open Dependabot PRs that touch `solana-program`,
-  `solana-system-interface` or `sha2` change the program bytes. Merge them *before* the
-  release you deploy, or not until the next program version.
+- **Dependencies.** Open Dependabot PRs that touch the program's dependency tree
+  (`cargo tree -p seal-wallet`) change the program bytes and hash. Merge them *before* the
+  release you deploy (then rebuild in CI and update `PROGRAM_SHA256`), or not until the
+  next program version. Triage as of 2026-10-11:
+
+  | PR | Bump | Changes the deployed program? |
+  | --- | --- | --- |
+  | #1, #2 | `actions/setup-node`, `actions/checkout` | No (CI only) |
+  | #4 | `prettier` | No (formatting tool) |
+  | #7 | `serde_json` | No (CLI and verifier only) |
+  | #8 | `serde` 1.0.229 | Possibly: in the program's tree via `solana-program`; rebuild and compare the hash |
+  | #6 | `sha2` 0.11 | Yes: the program hashes with it (also an API change) |
+  | #5 | `solana-system-interface` 3.3 | Yes (major) |
+  | #3 | `solana-program` 5.1 | Yes (major) |
+
+  Their CI ran against an older `main`; re-run it before merging.
 
 ## 4. Deploy and make immutable
 
