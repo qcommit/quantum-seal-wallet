@@ -117,6 +117,7 @@ cargo fmt --all -- --check
 cargo clippy --locked --workspace --all-targets -- -D warnings
 cargo test --locked --release --workspace
 cargo build --locked --release -p seal-verify
+npm run test:differential
 python3 scripts/check-release.py
 ~~~
 

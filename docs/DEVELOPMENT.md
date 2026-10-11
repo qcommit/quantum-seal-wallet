@@ -14,7 +14,16 @@ cargo fmt --all -- --check
 cargo clippy --locked --workspace --all-targets -- -D warnings
 cargo test --locked --release --workspace
 cargo build --locked --release -p seal-verify
+npm run test:differential
 ```
+
+`npm run test:differential` builds the `decode_intents` example of `seal-verify` and
+checks that the Rust `Intent::decode` and the SDK codec agree byte for byte on the
+named edge cases in `tests/fixtures/intent-corpus.txt` plus 20,000 seeded generated
+and mutated intents (`node tests/differential.mjs --seed=N --cases=N` explores more;
+`--write-corpus` regenerates the corpus after a deliberate format change). The
+property tests in `crates/wallet-core/tests/intent_properties.rs` accept
+`QSW_PROPERTY_SEED` and `QSW_PROPERTY_SCALE`.
 
 Verify the included SDK fixture with a **separately selected** public key. This
 example extracts a known test key only to make the fixture command reproducible;

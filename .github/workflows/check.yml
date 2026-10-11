@@ -32,6 +32,8 @@ jobs:
       - run: cargo clippy --locked --workspace --all-targets -- -D warnings
       - run: cargo test --locked --release --workspace
       - run: cargo build --locked --release -p seal-verify
+      - name: Differential test of the Rust and SDK intent codecs
+        run: npm run test:differential
       - name: Independent verification of the SDK fixture
         run: |
           KEY=$(node --input-type=module -e "import fs from 'node:fs';console.log(JSON.parse(fs.readFileSync('fixtures/sdk-approval.json')).publicKey)")

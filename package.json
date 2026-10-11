@@ -10,6 +10,7 @@
   "scripts": {
     "test": "node --test sdk/test/*.test.mjs",
     "test:localnet": "node tests/localnet.mjs",
+    "test:differential": "cargo build --locked --release -p seal-verify --example decode_intents && node tests/differential.mjs",
     "verify": "node sdk/src/cli.mjs verify",
     "keygen": "node sdk/src/cli.mjs keygen",
     "bench": "node scripts/benchmark.mjs",
