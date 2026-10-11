@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "recordedAt": "2026-10-11T05:56:42Z",
+  "recordedAt": "2026-10-11T06:44:34Z",
   "checks": [
     {
       "name": "sdk-tests",
@@ -9,7 +9,7 @@
         "test"
       ],
       "exitCode": 0,
-      "seconds": 4.033
+      "seconds": 4.416
     },
     {
       "name": "format",
@@ -19,7 +19,7 @@
         "format:check"
       ],
       "exitCode": 0,
-      "seconds": 0.38
+      "seconds": 0.424
     },
     {
       "name": "rust-format",
@@ -31,7 +31,7 @@
         "--check"
       ],
       "exitCode": 0,
-      "seconds": 0.065
+      "seconds": 0.08
     },
     {
       "name": "clippy",
@@ -46,7 +46,7 @@
         "warnings"
       ],
       "exitCode": 0,
-      "seconds": 0.239
+      "seconds": 0.338
     },
     {
       "name": "rust-tests",
@@ -58,7 +58,7 @@
         "--workspace"
       ],
       "exitCode": 0,
-      "seconds": 0.505
+      "seconds": 0.569
     },
     {
       "name": "verifier-build",
@@ -71,7 +71,7 @@
         "seal-verify"
       ],
       "exitCode": 0,
-      "seconds": 2.993
+      "seconds": 0.099
     },
     {
       "name": "cli-pty",
@@ -80,7 +80,7 @@
         "tests/cli-pty.py"
       ],
       "exitCode": 0,
-      "seconds": 1.905
+      "seconds": 2.034
     },
     {
       "name": "npm-audit",
@@ -90,7 +90,7 @@
         "--json"
       ],
       "exitCode": 0,
-      "seconds": 0.342
+      "seconds": 0.436
     },
     {
       "name": "build-sbf",
@@ -99,7 +99,7 @@
         "scripts/build-sbf.sh"
       ],
       "exitCode": 0,
-      "seconds": 0.388
+      "seconds": 0.349
     },
     {
       "name": "localnet-run",
@@ -108,11 +108,11 @@
         "scripts/test-localnet.sh"
       ],
       "exitCode": 0,
-      "seconds": 100.861
+      "seconds": 143.18
     }
   ],
   "rustTestFunctions": 26,
-  "javascriptTests": 39,
+  "javascriptTests": 41,
   "nistCaseComparisons": 28,
   "signatureComponentMutations": 491,
   "localnetTransactions": 219,
@@ -120,9 +120,9 @@
   "localnetAssertions": 26,
   "networkClientLocalnet": {
     "status": "passed",
-    "transactionCount": 54,
+    "transactionCount": 99,
     "maxWireBytes": 1060,
-    "maxComputeUnits": 524605,
+    "maxComputeUnits": 498128,
     "publicTransactions": 0
   },
   "artifacts": {

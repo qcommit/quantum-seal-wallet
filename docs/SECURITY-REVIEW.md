@@ -114,7 +114,7 @@ a proof belonging to wallet B passed for wallet A; a guardian proof on a Transfe
 | 2 | Fixed | A guardian recovery proposal no longer advances the wallet nonce, so it cannot invalidate owner approvals. Replay stays impossible: a second proposal is refused while one is pending, and cancellation or finalization advances the nonce. Covered by the localnet assertion "a guardian proposal does not consume the owners nonce". |
 | 3 | Fixed | `check_live` rejects approvals whose expiry is more than 216,000 slots ahead (`ExpiryTooFar`, code 7023), matching the SDK horizon. Covered by a Rust unit test and the localnet assertion "the program refuses approvals that expire beyond the horizon". |
 | 4 | Accepted, mitigated in clients | CPI remains a deliberate, documented capability. The SDK transaction client and the browser extension only build the SPL `TransferChecked` shape. |
-| Info | Tests added | "A verified guardian approval cannot authorize spending" is now an on-chain rejection test. |
+| Info | Tests added | On-chain rejection tests now cover a verified guardian approval that tries to spend (7011), a proof verified for another wallet (7013), and one owner approval uploaded by two uploaders (7012). |
 
 The same release adds version-2 intents (a signed fee refund paid by the wallet to its fee
 payer); see `docs/PROTOCOL.md`. Localnet tests cover the exact refund, a tampered refund

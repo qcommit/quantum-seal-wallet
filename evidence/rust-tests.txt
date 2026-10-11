@@ -1,4 +1,4 @@
-    Finished `release` profile [optimized] target(s) in 0.07s
+    Finished `release` profile [optimized] target(s) in 0.09s
      Running unittests src/lib.rs (target/release/deps/seal_slh_verify-31e68702e3536c49)
 
 running 0 tests
@@ -10,11 +10,11 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 running 5 tests
 test staged_verification_matches_complete_verification ... ok
 test wrong_key_message_context_and_lengths_fail ... ok
-test nist_published_signature_generation_outputs_verify ... ok
 test nist_external_pure_signature_verification ... ok
+test nist_published_signature_generation_outputs_verify ... ok
 test every_signature_node_is_authenticated ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
 
      Running unittests src/main.rs (target/release/deps/seal_verify-77ccf38d8251bb20)
 
@@ -39,19 +39,19 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests/policy.rs (target/release/deps/policy-035d09c6265bbe31)
 
 running 19 tests
-test digest_and_active_key_are_checked ... ok
 test all_one_to_three_owner_threshold_subsets_match_the_policy ... ok
-test intents_reject_trailing_data_unknown_actions_and_zero_transfers ... ok
-test guardian_authorization_cannot_spend ... ok
-test epoch_nonce_expiry_and_lock_are_enforced ... ok
-test counters_fail_closed_at_u64_max ... ok
 test approvals_cannot_expire_beyond_the_horizon ... ok
-test largest_invocation_with_a_fee_refund_fits_the_intent_limit ... ok
+test intents_reject_trailing_data_unknown_actions_and_zero_transfers ... ok
+test digest_and_active_key_are_checked ... ok
+test counters_fail_closed_at_u64_max ... ok
+test epoch_nonce_expiry_and_lock_are_enforced ... ok
+test guardian_authorization_cannot_spend ... ok
 test invocation_cannot_delegate_undeclared_signers_or_write_the_wallet ... ok
 test mainnet_wallets_need_a_day_long_recovery_delay ... ok
-test policy_requires_distinct_nonzero_keys_and_canonical_padding ... ok
 test owners_can_veto_recovery_and_rotation_cancels_it ... ok
+test largest_invocation_with_a_fee_refund_fits_the_intent_limit ... ok
 test quorum_counts_unique_owner_indices ... ok
+test policy_requires_distinct_nonzero_keys_and_canonical_padding ... ok
 test recovery_cannot_finalize_before_its_slot ... ok
 test recovery_must_be_a_separate_key_with_a_bounded_delay ... ok
 test rotation_preserves_the_deposit_identity ... ok

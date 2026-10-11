@@ -8,7 +8,7 @@ Quantum Seal Wallet is a Solana program, JavaScript SDK and command line, and an
 | --- | --- |
 | Wallet program | Builds reproducibly (`seal_wallet.so`, 141,744 bytes); deployed and rehearsed on **devnet**; **not yet deployed to mainnet** |
 | Network client | Mainnet-ready: pins genesis, program ID, binary hash and immutability before every submission |
-| Validation | Local validator: 273 transactions across two suites; devnet: 33 real transactions (create, SOL and SPL transfers); 491 tamper cases rejected; 28 NIST vector comparisons |
+| Validation | Local validator: 318 transactions across two suites; devnet: 33 real transactions (create, SOL and SPL transfers); 491 tamper cases rejected; 28 NIST vector comparisons |
 | Audit | **Not independently audited.** Do not deposit real funds until a reviewed program is deployed |
 | Wallet app | Command line, plus a browser extension in a separate repository (see [How people will use it](#how-people-will-use-it)) |
 
@@ -160,17 +160,17 @@ The included [validation report](evidence/validation.json) records the following
 | Check | Recorded result |
 | --- | ---: |
 | Rust test functions | 26 |
-| JavaScript tests | 39 |
+| JavaScript tests | 41 |
 | Selected NIST comparisons | 28 |
 | Signature-component mutations | 491 |
-| Confirmed local-validator transactions | 219 (+54 in the network-client suite) |
+| Confirmed local-validator transactions | 219 (+99 in the network-client suite) |
 | Expected rejected transactions | 17 |
 | Devnet rehearsal transactions | 33 |
 | Program SBF compilation | Passed (`4fbf18f6…a7049`, 141,744 bytes) |
 | Maximum observed transaction size | 1,060 bytes |
-| Maximum observed transaction compute | 524,605 CU |
+| Maximum observed transaction compute | 530,559 CU |
 
-The recorded localnet suites exercise 2-of-2 SOL execution, replay protection, changing owner policy without changing the deposit address, old-epoch rejection, staged signature corruption, SPL Token CPI, failed-CPI rollback, delayed guardian recovery, owner cancellation, guardian approvals that try to spend, signed fee refunds (including a tampered refund account and the CPI path), the expiry horizon, interrupted-upload resumption and proof-rent reclamation. They include **26 + 15 localnet assertions**.
+The recorded localnet suites exercise 2-of-2 SOL execution, replay protection, changing owner policy without changing the deposit address, old-epoch rejection, staged signature corruption, SPL Token CPI, failed-CPI rollback, delayed guardian recovery, owner cancellation, guardian approvals that try to spend, proofs from another wallet, one approval uploaded twice, signed fee refunds (including a tampered refund account and the CPI path), the expiry horizon, interrupted-upload resumption and proof-rent reclamation. They include **26 + 17 localnet assertions**.
 
 Performance measurements are in [evidence/benchmark.json](evidence/benchmark.json) and were made on Linux ARM64 with Node 24 using ten measured samples. The median SDK signing time, **including a self-check**, was approximately **953 ms**; median SDK verification was **1.13 ms**, and the independent Rust CLI including process startup was **3.00 ms**. Those are local measurements, **not** guarantees across devices or networks.
 

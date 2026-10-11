@@ -217,6 +217,89 @@ try {
   assert.ok(payerBeforeExecute !== null);
   check('a version-2 transfer pays the exact signed fee refund from the wallet');
 
+  // Adversarial proofs: a proof verified for another wallet, and the same owner's
+  // approval uploaded twice by different uploaders, must not authorize anything.
+  const otherOwner = generateKeypair();
+  const other = await createDescriptor({
+    program: network.program,
+    genesis: network.genesis,
+    policy: { keys: [otherOwner.publicKey], threshold: 1 },
+  });
+  await initializeWallet(network, payer, other, { onRecord: record });
+  await submit(
+    network.connection,
+    payer,
+    [
+      SystemProgram.transfer({
+        fromPubkey: payer.publicKey,
+        toPubkey: new PublicKey(other.wallet),
+        lamports: 100000000n,
+      }),
+    ],
+    { label: 'synthetic-deposit', onRecord: record },
+  );
+  const otherIntent = await prepareSolTransfer(network, other, {
+    to: recipient,
+    amount: '0.001',
+    expiresInSlots: 20000n,
+  });
+  const otherProof = await uploadApproval(
+    network.connection,
+    payer,
+    serializeApproval(signApproval(otherIntent.bytes, otherOwner.secretKey, 0)),
+    { network, expectedProgram: network.program, expectedWallet: other.wallet, onRecord: record },
+  );
+  const mine = await prepareSolTransfer(network, descriptor, {
+    to: recipient,
+    amount: '0.001',
+    expiresInSlots: 20000n,
+  });
+  await assert.rejects(
+    submit(network.connection, payer, [executeInstruction(mine.bytes, [otherProof])], {
+      network,
+      label: 'foreign-wallet-proof',
+      onRecord: record,
+    }),
+    /"Custom":"?7013"?/,
+  );
+  check('a proof verified for another wallet cannot authorize this wallet');
+  const mineApproval = serializeApproval(signApproval(mine.bytes, owner.secretKey, 0));
+  const secondUploader = await Keypair.generate();
+  await submit(
+    network.connection,
+    payer,
+    [
+      SystemProgram.transfer({
+        fromPubkey: payer.publicKey,
+        toPubkey: secondUploader.publicKey,
+        lamports: 200000000n,
+      }),
+    ],
+    { label: 'fund-second-uploader', onRecord: record },
+  );
+  const upload = (who) =>
+    uploadApproval(network.connection, who, mineApproval, {
+      network,
+      expectedProgram: network.program,
+      expectedWallet: descriptor.wallet,
+      onRecord: record,
+    });
+  const firstCopy = await upload(payer),
+    secondCopy = await upload(secondUploader);
+  assert.ok(!firstCopy.equals(secondCopy));
+  const nonceBefore = (await walletStatus(network, descriptor)).state.nonce;
+  await assert.rejects(
+    submit(network.connection, payer, [executeInstruction(mine.bytes, [firstCopy, secondCopy])], {
+      network,
+      label: 'duplicate-owner-approval',
+      onRecord: record,
+    }),
+    /"Custom":"?7012"?/,
+  );
+  assert.equal((await walletStatus(network, descriptor)).state.nonce, nonceBefore);
+  check('one owner approval uploaded twice by different uploaders counts once');
+  otherOwner.secretKey.fill(0);
+
   // The program itself refuses approvals that expire beyond the one-day horizon.
   const state = (await walletStatus(network, descriptor)).state;
   const far = encodeIntent({
