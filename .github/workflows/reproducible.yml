@@ -1,0 +1,35 @@
+name: Reproducible program build
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+    paths: ['programs/**', 'crates/**', 'Cargo.lock', 'Cargo.toml', 'PROGRAM_SHA256']
+  pull_request:
+    paths: ['programs/**', 'crates/**', 'Cargo.lock', 'Cargo.toml', 'PROGRAM_SHA256']
+permissions:
+  contents: read
+jobs:
+  sbf:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      CARGO_BUILD_JOBS: 4
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - name: Install the pinned Rust toolchain
+        run: rustup toolchain install 1.89.0 --profile minimal
+      - name: Install Agave 3.1.10 (cargo-build-sbf, platform-tools v1.52)
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/v3.1.10/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+      - name: Build the on-chain program
+        run: |
+          cargo-build-sbf --version
+          bash scripts/build-sbf.sh
+      - name: Compare with the recorded release hash
+        run: |
+          cd target/deploy
+          sha256sum seal_wallet.so
+          sha256sum --check ../../PROGRAM_SHA256
