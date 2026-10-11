@@ -18,7 +18,10 @@ Devnet may explicitly pin a mutable upgrade authority for testing.
 The mainnet and devnet genesis hashes are fixed in `sdk/src/network.mjs` and were
 cross-checked against the public cluster RPCs. Merely labelling an endpoint
 “mainnet” is insufficient. Public endpoints must use HTTPS. Every submitted wallet
-transaction repeats the deployment checks. RPC reads are still trusted: this is
+transaction repeats the deployment checks: upgradeable deployments (test clusters) are
+re-verified byte for byte each time, while an immutable deployment, whose bytes cannot
+change on-chain, is verified in full once per session and then re-checked for cluster
+genesis and its executable program account before each transaction. RPC reads are still trusted: this is
 not a light client or cryptographic proof of cluster state.
 
 An upgrade authority can replace the checks that protect all wallets. Making a

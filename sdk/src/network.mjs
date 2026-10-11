@@ -145,25 +145,32 @@ export async function inspectDeployment(connection, configuration) {
   });
 }
 
-// Public RPC endpoints throttle with HTTP 429. Those responses mean the request was
-// not processed, so the identical request is retried after a backoff. A retried
-// sendTransaction carries the same signed bytes; the cluster deduplicates by
-// signature, and nothing is re-signed.
+// Public RPC endpoints throttle with HTTP 429, and connections occasionally fail or
+// time out. The identical request is retried after a backoff in both cases: reads are
+// idempotent, and a retried sendTransaction carries the same signed bytes, which the
+// cluster deduplicates by signature. Nothing is re-signed.
 export function rateLimitedFetch(
   fetchImpl = globalThis.fetch,
   { attempts = 8, baseMs = 500 } = {},
 ) {
+  const pause = (ms) => new Promise((resolve) => setTimeout(resolve, Math.min(ms, 15000)));
   return async (url, init) => {
     for (let attempt = 0; ; attempt++) {
-      const response = await fetchImpl(url, {
-        ...init,
-        redirect: 'error',
-        signal: AbortSignal.timeout(15000),
-      });
+      let response;
+      try {
+        response = await fetchImpl(url, {
+          ...init,
+          redirect: 'error',
+          signal: AbortSignal.timeout(15000),
+        });
+      } catch (error) {
+        if (attempt + 1 >= attempts) throw error;
+        await pause(baseMs * 2 ** attempt);
+        continue;
+      }
       if (response.status !== 429 || attempt + 1 >= attempts) return response;
       const header = Number(response.headers.get('retry-after'));
-      const wait = Number.isFinite(header) && header > 0 ? header * 1000 : baseMs * 2 ** attempt;
-      await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15000)));
+      await pause(Number.isFinite(header) && header > 0 ? header * 1000 : baseMs * 2 ** attempt);
     }
   };
 }
@@ -177,7 +184,7 @@ export async function openNetwork(input, connection) {
   });
   const deployment = await inspectDeployment(connection, config);
   const session = Object.freeze({ connection, ...deployment });
-  sessions.set(session, { connection, config });
+  sessions.set(session, { connection, config, verified: deployment });
   return session;
 }
 
@@ -187,7 +194,25 @@ export async function assertNetwork(connection, session, program) {
     throw new Error('Unknown network session or mismatched connection.');
   if (program && address(program).toBase58() !== internal.config.program)
     throw new Error('Instruction targets a different wallet program.');
-  return inspectDeployment(connection, internal.config);
+  // An immutable program's bytes cannot change on-chain, so after one full byte check
+  // each transaction re-checks only the cluster and that the program is still the
+  // executable account the loader installed. Upgradeable deployments (test clusters)
+  // are re-verified in full every time, because their bytes can be replaced.
+  const verified = internal.verified;
+  if (verified?.immutable) {
+    const [genesis, account] = await Promise.all([
+      connection.getGenesisHash(),
+      connection.getAccountInfo(address(internal.config.program), verified.commitment),
+    ]);
+    if (genesis !== internal.config.genesis)
+      throw new Error('RPC returned another cluster genesis hash.');
+    const loader = verified.programData ? UPGRADEABLE_LOADER : IMMUTABLE_LOADER;
+    if (!account?.executable || !account.owner.equals(loader))
+      throw new Error('Pinned wallet program is no longer the verified deployment.');
+    return verified;
+  }
+  internal.verified = await inspectDeployment(connection, internal.config);
+  return internal.verified;
 }
 
 export async function guardConnection(connection, session, program) {

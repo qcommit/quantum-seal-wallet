@@ -136,12 +136,49 @@ test('loader-v3 checks ProgramData derivation, owner, and immutable authority', 
   c.accounts.get(pd.toBase58()).owner = pub(8);
   await assert.rejects(inspectDeployment(c, base()), /owner/);
 });
-test('network session binds connection identity and refreshes deployment checks', async () => {
+test('network session binds connection identity; immutable deployments get a light re-check', async () => {
   const c = rpc(),
     session = await openNetwork(base(), c);
   await assert.rejects(assertNetwork(rpc(), session), /mismatched/);
   await assert.rejects(assertNetwork(c, { ...session }), /Unknown/);
-  c.accounts.get(base().program).data = new Uint8Array(code.length);
+  assert.equal((await assertNetwork(c, session)).immutable, true);
+  // The cluster and the executable program account are still checked every time.
+  const genesis = c.getGenesisHash;
+  c.getGenesisHash = async () => GENESIS.devnet;
+  await assert.rejects(assertNetwork(c, session), /genesis/);
+  c.getGenesisHash = genesis;
+  c.accounts.get(base().program).executable = false;
+  await assert.rejects(assertNetwork(c, session), /no longer/);
+  c.accounts.get(base().program).executable = true;
+  c.accounts.get(base().program).owner = UPGRADEABLE_LOADER;
+  await assert.rejects(assertNetwork(c, session), /no longer/);
+});
+test('upgradeable deployments are re-verified byte for byte before every transaction', async () => {
+  const authority = pub(8).toBase58();
+  const config = {
+    ...base(),
+    cluster: 'devnet',
+    genesis: GENESIS.devnet,
+    upgradeAuthority: authority,
+  };
+  const c = rpc(config),
+    [pd] = await PublicKey.findProgramAddress([pub(5).toBytes()], UPGRADEABLE_LOADER);
+  const data = concat(
+    Uint8Array.of(3, 0, 0, 0),
+    u64(12n),
+    Uint8Array.of(1),
+    pub(8).toBytes(),
+    code,
+  );
+  c.accounts.set(config.program, {
+    executable: true,
+    owner: UPGRADEABLE_LOADER,
+    data: concat(Uint8Array.of(2, 0, 0, 0), pd.toBytes()),
+  });
+  c.accounts.set(pd.toBase58(), { executable: false, owner: UPGRADEABLE_LOADER, data });
+  const session = await openNetwork(config, c);
+  assert.equal((await assertNetwork(c, session)).immutable, false);
+  data[45 + 3] ^= 1; // an upgrade replaces the program bytes
   await assert.rejects(assertNetwork(c, session), /binary/);
 });
 test('unconfigured remote connection cannot use the legacy local path', async () => {
@@ -324,6 +361,27 @@ test('rate-limited RPC responses are retried with backoff, other errors are not'
   assert.equal(
     (await rateLimitedFetch(always, { attempts: 3, baseMs: 1 })('https://rpc.invalid')).status,
     429,
+  );
+  assert.equal(calls, 3);
+});
+
+test('connection failures are retried with backoff and surface after the last attempt', async () => {
+  const { rateLimitedFetch } = await import('../src/network.mjs');
+  let calls = 0;
+  const flaky = async () => {
+    if (++calls < 3) throw new TypeError('fetch failed');
+    return new Response('{}', { status: 200 });
+  };
+  assert.equal((await rateLimitedFetch(flaky, { baseMs: 1 })('https://rpc.invalid')).status, 200);
+  assert.equal(calls, 3);
+  calls = 0;
+  const down = async () => {
+    calls++;
+    throw new TypeError('fetch failed');
+  };
+  await assert.rejects(
+    rateLimitedFetch(down, { attempts: 3, baseMs: 1 })('https://rpc.invalid'),
+    /fetch failed/,
   );
   assert.equal(calls, 3);
 });

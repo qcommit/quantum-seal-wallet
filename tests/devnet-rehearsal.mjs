@@ -27,7 +27,10 @@ import {
 } from '../sdk/src/wallet.mjs';
 import { TOKEN_PROGRAM } from '../sdk/src/instructions.mjs';
 
-const config = parseNetwork(readFileSync('.runtime/devnet.network.json', 'utf8'));
+const config = parseNetwork(
+  readFileSync(process.env.QS_NETWORK_CONFIG ?? '.runtime/devnet.network.json', 'utf8'),
+);
+const evidencePath = process.env.QS_EVIDENCE ?? 'evidence/devnet-rehearsal.json';
 assert.equal(config.cluster, 'devnet', 'This rehearsal runs on devnet only.');
 const funder = await Keypair.fromSecretKey(
   Uint8Array.from(JSON.parse(readFileSync(process.env.QS_DEVNET_FUNDER, 'utf8'))),
@@ -38,12 +41,13 @@ const report = {
   startedAt: new Date().toISOString(),
   program: config.program,
   programSha256: config.programSha256,
+  immutable: config.upgradeAuthority === null,
   phases: [],
   transactions: [],
 };
 const persist = () =>
   writeFileSync(
-    'evidence/devnet-rehearsal.json',
+    evidencePath,
     JSON.stringify(report, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2) + '\n',
   );
 const pending = new Map();

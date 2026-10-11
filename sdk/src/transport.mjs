@@ -55,7 +55,11 @@ export async function submitNetwork(connection, payer, instructions, options = {
     confirmationTimeoutMs = 120000,
     pollIntervalMs = network?.cluster === 'localnet' ? 500 : 1500,
   } = options;
-  const deployment = await assertNetwork(connection, network);
+  // The deployment check and the blockhash fetch are independent reads; run them together.
+  const [deployment, latest] = await Promise.all([
+    assertNetwork(connection, network),
+    connection.getLatestBlockhash(network?.commitment ?? 'finalized'),
+  ]);
   const { commitment } = deployment;
   if (expectFailure || extraSigners.length)
     throw new Error(
@@ -80,7 +84,6 @@ export async function submitNetwork(connection, payer, instructions, options = {
     feeLimit = integerAmount(maxFeeLamports, 'fee limit');
   if (price > 1000000n || feeLimit === 0n || feeLimit > 10000000n)
     throw new Error('Fee configuration exceeds the client safety limits.');
-  const latest = await connection.getLatestBlockhash(commitment);
   const transaction = new Transaction({
     feePayer: payer.publicKey,
     recentBlockhash: latest.blockhash,
@@ -94,16 +97,19 @@ export async function submitNetwork(connection, payer, instructions, options = {
     throw new Error(`Transaction exceeds the legacy wire limit: ${wire.length} bytes.`);
   const versioned = VersionedTransaction.deserialize(wire);
   const signature = base58(versioned.signatures[0]);
-  const estimatedFee = await connection.getFeeForMessage(versioned.message, commitment);
+  // Fee quote and simulation are read-only; both must pass before anything is sent.
+  const [estimatedFee, simulation] = await Promise.all([
+    connection.getFeeForMessage(versioned.message, commitment),
+    connection.simulateTransaction(versioned, {
+      commitment,
+      sigVerify: true,
+      replaceRecentBlockhash: false,
+    }),
+  ]);
   if (estimatedFee.value === null)
     throw new Error('RPC could not quote this transaction fee. Nothing was submitted.');
   if (integerAmount(estimatedFee.value, 'RPC fee') > feeLimit)
     throw new Error('Transaction fee exceeds the configured limit. Nothing was submitted.');
-  const simulation = await connection.simulateTransaction(versioned, {
-    commitment,
-    sigVerify: true,
-    replaceRecentBlockhash: false,
-  });
   if (simulation.value.err)
     throw new Error(
       `Simulation rejected ${label}: ${JSON.stringify(simulation.value.err, (_, v) => (typeof v === 'bigint' ? v.toString() : v))}`,

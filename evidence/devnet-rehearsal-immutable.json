@@ -1,0 +1,339 @@
+{
+  "status": "passed",
+  "cluster": "devnet",
+  "startedAt": "2026-10-11T06:22:11.858Z",
+  "program": "2o7mAz2WBJhtmTHBbddRrLF3oc7UN2G5fxHpnzyhqjhq",
+  "programSha256": "4fbf18f66470322941b907adf03ebcd995385d35ac8c7ae4e3aa5ef63dd7a049",
+  "immutable": true,
+  "phases": [
+    {
+      "name": "create wallet",
+      "seconds": 2.476,
+      "transactions": 1,
+      "feeLamports": "5000"
+    },
+    {
+      "name": "SOL transfer (0.01 SOL, with fee refund)",
+      "seconds": 86.228,
+      "transactions": 16,
+      "feeLamports": "80000"
+    },
+    {
+      "name": "SPL token transfer (1.25 tokens, with fee refund)",
+      "seconds": 80.717,
+      "transactions": 16,
+      "feeLamports": "80000"
+    }
+  ],
+  "transactions": [
+    {
+      "label": "initialize-wallet",
+      "signature": "3oRsQJAxmCbohgs89NiUaN8SgcopR2gCtkonAXKmdv1cX2n4SsPsGdbjSMD1MbsMmYGHknCkQsKR3qs1KievbFzj",
+      "fee": "5000",
+      "computeUnits": "13476",
+      "bytes": 480,
+      "seconds": 1.827,
+      "error": null
+    },
+    {
+      "label": "begin-proof",
+      "signature": "5WjQKRBJqrMqyufBcH1dtxfBxGuRA1LsLoN5W2hR86mAfudXbBiD4RaJH7Hb2YyJM8XQydyb2R6FoxpeeqM6Yu7m",
+      "fee": "5000",
+      "computeUnits": "15470",
+      "bytes": 367,
+      "seconds": 1.836,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "ktXddVkJaGrKKWJjChgpob3xozvVRtfPxzfu1hQVcJqff4BUDdXDXnZvDR7FHG589s3k3jmWjV3tAxSfzzfP4Ni",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 12.008,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "3yZQmEUtBVcYuLW5pbxhxgMEdNjsHpDsAibrQCFcgossDgSdjND1aD9vFeSwdPfZsZKRSbye8zSLwmXrJaTgmSKS",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.879,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "mdmBUzpfk4M3K6BUyuricdjtFRPQ8h4BRtr7qWhT5tXDMB3Tb5xCQmfcX9k7r9Zw83qppxLkgwrvJygxDeipX6m",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.834,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "4adxhRnr1DzRd6ZgPZhCbfxU7QYYny7Q6S2UcFBeEJMvqmiLtWM3qFvVSA4X3wqoUwnHrPFSQgxoVwSMpPu4RiX8",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.856,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "444ufDK2RR5gaJYZrRmQ1rNocJHpfyH36ZZXU7wqK8FS1rCGNHG7ZKZcQhz42LVX3c4jaAnbpKCHqizbs1TLmaY8",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.83,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "4QXsbNKrp8jpQatByrnKmz8LtntAF1Fd4KB2rQEx6fAiRnbsDy9YrLETvF9tcHMD7JxAYDkPveCxngcXnu7TQLkc",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.901,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "59gHd5oAJzA1gL9PKBMBGk4Ce5fFvCXFmeK4JYYKYWYpGG7U82HJaN2xbZcoV3n5r3Kmb5B6jaSFHrAm1dr4RVsm",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.836,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "34AtXRmEzkJAuirmq7aNLTrA82yvFYw1wHm767xsL1NycYNqcJCCkCwAXsYzwwWSV8ZgC3dCt2CCyM2GNh4WpurQ",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.813,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "2okW3njAw44ux9bQnQfTd6Xfzv4oALRDRkTRgHHuJVVf9b7NdBwLh9WAN93PDbKjmdCeFXuQpWzssaE77B3fVZJo",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 3.884,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "2kyf8cdzDtnd7m4JXLUeqCotzXq7yijp7RKcxTJvWebMX4A3GA6VxtizAqcbdveCyijfr8X759KBLpb8F9J6joJo",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.878,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "2kdJNo3fbj9yM6WwFBk6MKjdD78aStdiygByHFRWLMwXqfyp3xugRTQG5pu8H333jhfCFMbeZBYUNbD6y5mwszQU",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 456,
+      "seconds": 1.838,
+      "error": null
+    },
+    {
+      "label": "seal-proof",
+      "signature": "2jzh1k1xyMB7JNaawPG6L9beVFRJFWA6Yu93PeFQPMNZzaKYVpWLZPUxzEtx1vdhAaFLK6U4uenBDzMKDSZhSXAR",
+      "fee": "5000",
+      "computeUnits": "5905",
+      "bytes": 276,
+      "seconds": 1.836,
+      "error": null
+    },
+    {
+      "label": "verify-batch-1-8",
+      "signature": "2Z9ozr4BAVWB7Vt7ffYTdKEGSX9HBNCvZ4JbBcBwRkWGqiQnLiUYxU54kQwG3GppdcFNBwhVuSTVshCrHDiEKAoR",
+      "fee": "5000",
+      "computeUnits": "486379",
+      "bytes": 318,
+      "seconds": 1.81,
+      "error": null
+    },
+    {
+      "label": "execute-wallet-transfer",
+      "signature": "2cmqbwwAkYz5gevfzWMNNNgYyssyxXQWJea5YptHRuhfi3edyeB7GbhHXbTWBv76WDy8tWMnArMCXUZG48yjohdr",
+      "fee": "5000",
+      "computeUnits": "9097",
+      "bytes": 514,
+      "seconds": 1.834,
+      "error": null
+    },
+    {
+      "label": "reclaim-proof-rent",
+      "signature": "tzz7Cdy1ZXoFdGxLXKwpDicqFQSXZwaFhJCfMaSDfJKNBniS5QsF1u8UirLnCgn8MfTAtuxsExMLxdQrtrAxbrb",
+      "fee": "5000",
+      "computeUnits": "3050",
+      "bytes": 244,
+      "seconds": 1.874,
+      "error": null
+    },
+    {
+      "label": "begin-proof",
+      "signature": "3YehfZMsrM95QQSKeV7BbqaUREgHqGPnfc48vAM1PrVwohwTkkvM7apEguT9mdtuXVS3ULMprMpxeoxmVrC6QXfm",
+      "fee": "5000",
+      "computeUnits": "21470",
+      "bytes": 367,
+      "seconds": 2.069,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "3kUwvUkj5ufhgiQEzWuiEF2k5k9BRTpgJJNqJuPQNhKzw94y96ouAf2wKiKbYf5dm5yz8hR2rXdtUxFDhv3k2ks",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 3.524,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "4WaZf4yT9NwVUzija9acGFo9PfPp5kuP37wyK1DUV9zHWHEcDswH2QYYYiEwx6cRMtjmHiCVQ8vDoGLLTFHcrABk",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 3.388,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "3rN1u9TwJTXywDxFobxfJry9MFSdkmERswhrXJ3Qw6sVkVAL2FHnxjKwyznseHeEXx4jcntxUc1FcdGBWZfXSTQh",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.843,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "3noWUPjyYMGBXHppgyWPkeLtyyWE3TfSnVn6LxyGDpyZCbzTrWdhBrmfSh3RX1ciZtbjX3NmhBmncqFxeYGHVU26",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 10.286,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "2McGj5posnTy5fza8wEQS6FSnaWUA4dDji8i5z65wxBJJkmx2CQEdjB5zaJzEbiZyQVwUHY2wN7UCcLHeghRz458",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 3.492,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "2uQxRHba7TtvM94xPidUDT3jHi1Zy6S2619KRELCn9b8hmHP9CBJdHHC34nKeP3mvXKRqtZFNaZLNHAMGysuwo5s",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.834,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "2w9sU4nLQa15QxbqxMExaev42Ui24w3HLkrigkTDPNBQsABTq8JJdEvwyK3rgQqC9DZHJsuSrYKq71hrhnabmjB4",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.82,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "2pttxXWznJWRKZBfH6DgAXiAsuX7299hLnDBPUtn5zhvfmAj1WMTa7zuzh5VPuycgf9RNtUzmfURj28KeAvVP8gY",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.873,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "4Q8TDgrbgU4ZLsZHSJk4NcmRhMPriEvYsAgPHjMvPdTXRBieeNukBhKcq8hjhZq7o9XS93vJ2yuNJzxVsp9Er4e7",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.872,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "3CnJ7oTQNYJLsTFZtA2iubG8Ryyce7iVxn21tRpFdpfzaqgeXc7HnzB9C8da1m1haBnZSrbHyLMPzVh4deVwDVzk",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 1048,
+      "seconds": 1.813,
+      "error": null
+    },
+    {
+      "label": "upload-chunk",
+      "signature": "5kFNpvnwYwC3JfZxcJYxtenrMNh6wveVwmnYmZpHrLAdv3sc2TtRML6meFKdgbTjHwQad79PpeFBGnd27uojag19",
+      "fee": "5000",
+      "computeUnits": "6333",
+      "bytes": 456,
+      "seconds": 3.511,
+      "error": null
+    },
+    {
+      "label": "seal-proof",
+      "signature": "5CYNTzVHvBbuiGb1qoeopAEvVuG8b4duFV3XRMVmisTcBGeuy5Xxs7vHR4ckTV8oMpEK5CubTjZWqGZhgXUE7aDK",
+      "fee": "5000",
+      "computeUnits": "5905",
+      "bytes": 276,
+      "seconds": 1.848,
+      "error": null
+    },
+    {
+      "label": "verify-batch-1-8",
+      "signature": "3UJ6PWrKEzJg8CuA2eoajac3c5hgoGioPwaGZSW2fTy9cKfmVybwpHravAabVY711SPyPCaCTM7HU7kCVvwWMFYN",
+      "fee": "5000",
+      "computeUnits": "492233",
+      "bytes": 318,
+      "seconds": 1.826,
+      "error": null
+    },
+    {
+      "label": "execute-wallet-transfer",
+      "signature": "39iK6Xx4Ra3SLJTcu5hhXFbLg53ETsjGVMQ5Qfwb34m5v2u6Y8Yepbr1M1SYtpEffRR4jGzXNhzB4vJEYTpMqws4",
+      "fee": "5000",
+      "computeUnits": "13623",
+      "bytes": 751,
+      "seconds": 3.49,
+      "error": null
+    },
+    {
+      "label": "reclaim-proof-rent",
+      "signature": "2bwEUiuDqfdnUGNxyrnLLGTd6p4scQmRnBCcY6fYsjm9uAYNXS32Mrx7TqJJ4Q5mXwynQqMDe6ZqAyBB9r6dxS6r",
+      "fee": "5000",
+      "computeUnits": "3050",
+      "bytes": 244,
+      "seconds": 1.828,
+      "error": null
+    }
+  ],
+  "feePayer": "21t27sKuruQ93NDP8xx7UeCwFMhvvLserfkMMx7VqcKo",
+  "wallet": "BTk7PSxWtg7F3WFRzzHTUGGcfYa4Wj84Xv5WVWKFPUym",
+  "signMilliseconds": 1016,
+  "solTransfer": {
+    "recipientReceivedLamports": "10000000",
+    "feePayerNetLamports": "20000",
+    "refundLamports": "100000"
+  },
+  "finishedAt": "2026-10-11T06:25:07.336Z",
+  "transactionCount": 33,
+  "totalFeeLamports": "165000",
+  "medianConfirmSeconds": 1.848
+}

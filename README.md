@@ -84,14 +84,14 @@ Today both keys are managed with the command line. The intended consumer client 
 
 ## Devnet rehearsal
 
-The current program is deployed on devnet at `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` (upgradeable, for testing). [`tests/devnet-rehearsal.mjs`](tests/devnet-rehearsal.mjs) runs real create → SOL transfer → classic SPL transfer flows against it and records [evidence/devnet-rehearsal.json](evidence/devnet-rehearsal.json):
+The current program is deployed twice on devnet: `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` (upgradeable, for testing) and `2o7mAz2WBJhtmTHBbddRrLF3oc7UN2G5fxHpnzyhqjhq` (immutable, the mainnet configuration). [`tests/devnet-rehearsal.mjs`](tests/devnet-rehearsal.mjs) runs real create → SOL transfer → classic SPL transfer flows and records [evidence/devnet-rehearsal.json](evidence/devnet-rehearsal.json) and [evidence/devnet-rehearsal-immutable.json](evidence/devnet-rehearsal-immutable.json):
 
 | Measurement | Devnet result |
 | --- | ---: |
 | Transactions per transfer | 16 |
 | Base fees per transfer | 80,000 lamports (0.00008 SOL) |
 | Refundable proof deposit | 0.0569 SOL, returned in the same send |
-| Time per transfer, end to end | 79–87 s |
+| Time per transfer, end to end | 67–87 s across runs (varies with public-RPC conditions) |
 | Largest compute use (verification batch) | 489,321 CU |
 | Signing time (JavaScript) | about 1.0 s |
 
@@ -192,6 +192,7 @@ An included fixture and a localnet pass demonstrate bounded behavior, **not** a 
 | [docs/CRYPTOGRAPHY.md](docs/CRYPTOGRAPHY.md) | Algorithm parameters and independent-verification boundaries |
 | [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) | Attack scenarios, mitigations and unaddressed risk |
 | [docs/SECURITY-REVIEW.md](docs/SECURITY-REVIEW.md) | Pre-deployment review of the on-chain program and how each finding was resolved |
+| [docs/LAUNCH.md](docs/LAUNCH.md) | Mainnet launch checklist: deploy, finalize, verify, pin in the extension, flip the website |
 | [docs/RELEASE.md](docs/RELEASE.md) | Source-release and production-readiness checklist |
 
 ## Security and scope
