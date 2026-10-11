@@ -126,14 +126,13 @@ async function pinnedDescriptor(network, input) {
 export async function walletStatus(network, input) {
   const descriptor = await pinnedDescriptor(network, input);
   await assertNetwork(network.connection, network, descriptor.program);
-  const account = await network.connection.getAccountInfo(
-    address(descriptor.wallet),
-    network.commitment,
-  );
+  // Independent reads, fetched together (each is an RPC round trip).
+  const [account, rent] = await Promise.all([
+    network.connection.getAccountInfo(address(descriptor.wallet), network.commitment),
+    network.connection.getMinimumBalanceForRentExemption(WALLET_BYTES),
+  ]);
   const lamports = integerAmount(account?.lamports ?? 0n);
-  const reserve = integerAmount(
-    await network.connection.getMinimumBalanceForRentExemption(WALLET_BYTES),
-  );
+  const reserve = integerAmount(rent);
   if (!account || (account.owner.equals(SystemProgram.programId) && account.data.length === 0))
     return {
       descriptor,
