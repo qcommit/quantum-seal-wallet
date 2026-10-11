@@ -1,0 +1,21 @@
+[workspace]
+members = ["crates/slh-verify", "crates/wallet-core", "programs/seal-wallet", "crates/seal-verify"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.89"
+
+[workspace.dependencies]
+borsh = { version = "=1.5.7", features = ["derive"] }
+sha2 = { version = "=0.10.9", default-features = false }
+solana-program = "=3.0.0"
+solana-system-interface = { version = "=2.0.0", features = ["bincode"] }
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+opt-level = 3

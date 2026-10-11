@@ -1,0 +1,251 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.localnet
+#1 transferring dockerfile: 332B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 82B done
+#3 DONE 0.0s
+
+#4 [1/3] FROM docker.io/library/ubuntu:24.04@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
+#4 DONE 0.0s
+
+#5 [2/3] RUN apt-get update && apt-get install -y --no-install-recommends     ca-certificates libssl3t64 libudev1 libstdc++6 libatomic1     && rm -rf /var/lib/apt/lists/*
+#5 CACHED
+
+#6 [3/3] WORKDIR /work
+#6 CACHED
+
+#7 exporting to image
+#7 exporting layers done
+#7 writing image sha256:9c11d3c1fbb5a058da1816ee717b103ef9b9358d1df8784f8fb266001e154d2f done
+#7 naming to docker.io/library/quantum-seal-localnet:0.1.0 done
+#7 DONE 0.0s
+TX prefund-dust: 300 CU, 255 bytes
+TX initialize-2-of-2: 10488 CU, 480 bytes
+PASS prefunded PDA initializes with the committed owner policy
+TX deposit-sol: 300 CU, 255 bytes
+TX fund-recipient: 300 CU, 255 bytes
+TX begin-proof: 12489 CU, 367 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 456 bytes
+TX seal-proof: 5965 CU, 276 bytes
+TX verify-batch-1-8: 510405 CU, 318 bytes
+TX begin-proof: 15489 CU, 367 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 456 bytes
+TX seal-proof: 5965 CU, 276 bytes
+TX verify-batch-1-8: 498648 CU, 318 bytes
+REJECT single approval cannot satisfy 2-of-2: 6876 CU, 473 bytes
+REJECT duplicate approval cannot satisfy threshold: 9092 CU, 474 bytes
+REJECT signed transfer amount cannot be altered: 9130 CU, 506 bytes
+TX execute-pq-sol-transfer: 10506 CU, 506 bytes
+PASS 2-of-2 post-quantum authorization transfers exact SOL amount
+REJECT executed intent cannot be replayed: 4546 CU, 506 bytes
+TX begin-proof: 24489 CU, 367 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 456 bytes
+TX seal-proof: 5965 CU, 276 bytes
+TX verify-batch-1-8: 507471 CU, 318 bytes
+TX begin-proof: 12489 CU, 367 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 456 bytes
+TX seal-proof: 5965 CU, 276 bytes
+TX verify-batch-1-8: 492750 CU, 318 bytes
+TX rotate-owner-policy: 10102 CU, 571 bytes
+PASS key rotation preserves the deposit address and advances epoch
+REJECT old epoch signatures remain invalid after rotation: 4543 CU, 506 bytes
+TX begin-corrupt-proof: 12489 CU, 367 bytes
+REJECT incomplete upload cannot be sealed: 5897 CU, 276 bytes
+REJECT upload offsets cannot skip bytes: 6262 CU, 295 bytes
+REJECT another uploader cannot modify proof bytes: 6210 CU, 391 bytes
+TX upload-corrupt-chunk: 6393 CU, 1048 bytes
+TX upload-corrupt-chunk: 6393 CU, 1048 bytes
+TX upload-corrupt-chunk: 6393 CU, 1048 bytes
+TX upload-corrupt-chunk: 6393 CU, 1048 bytes
+TX upload-corrupt-chunk: 6393 CU, 1048 bytes
+TX upload-corrupt-chunk: 6393 CU, 1048 bytes
+TX upload-corrupt-chunk: 6393 CU, 1048 bytes
+TX upload-corrupt-chunk: 6393 CU, 1048 bytes
+TX upload-corrupt-chunk: 6393 CU, 1048 bytes
+TX upload-corrupt-chunk: 6393 CU, 1048 bytes
+TX upload-corrupt-chunk: 6393 CU, 456 bytes
+TX seal-corrupt-proof: 5965 CU, 276 bytes
+REJECT sealed signature bytes cannot be overwritten: 6221 CU, 295 bytes
+REJECT unverified proof cannot release funds: 6767 CU, 473 bytes
+TX verify-fors: 50539 CU, 276 bytes
+TX verify-xmss-0: 63313 CU, 276 bytes
+TX verify-xmss-1: 54494 CU, 276 bytes
+TX verify-xmss-2: 54494 CU, 276 bytes
+TX verify-xmss-3: 78017 CU, 276 bytes
+TX verify-xmss-4: 69204 CU, 276 bytes
+TX verify-xmss-5: 69193 CU, 276 bytes
+REJECT corrupted final signature component fails root comparison: 60252 CU, 276 bytes
+PASS failed signature verification does not consume the wallet nonce
+REJECT only the original uploader can reclaim proof rent: 2926 CU, 340 bytes
+TX close-invalid-proof: 3050 CU, 244 bytes
+PASS closing a proof reclaims its account
+REJECT expired authorizations cannot begin uploading: 4444 CU, 367 bytes
+TX create-test-mint: 3079 CU, 430 bytes
+TX create-test-token-account: 4513 CU, 461 bytes
+TX create-test-token-account: 4513 CU, 461 bytes
+TX mint-synthetic-test-tokens: 4641 CU, 285 bytes
+TX begin-proof: 12489 CU, 367 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 456 bytes
+TX seal-proof: 5965 CU, 276 bytes
+TX verify-batch-1-8: 486843 CU, 318 bytes
+TX execute-pq-spl-transfer: 18589 CU, 710 bytes
+PASS PDA authority transfers classic SPL tokens through signed CPI
+TX begin-proof: 12489 CU, 367 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 456 bytes
+TX seal-proof: 5965 CU, 276 bytes
+TX verify-batch-1-8: 472127 CU, 318 bytes
+REJECT failing token CPI rolls back the entire wallet execution: 15981 CU, 710 bytes
+PASS failed CPI preserves nonce and clears the transient execution lock
+TX begin-proof: 12485 CU, 367 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 456 bytes
+TX seal-proof: 5961 CU, 276 bytes
+TX verify-batch-1-8: 480951 CU, 318 bytes
+TX guardian-proposes-recovery: 7576 CU, 498 bytes
+REJECT recovery cannot finalize before its delay: 3310 CU, 243 bytes
+TX begin-proof: 15489 CU, 367 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 456 bytes
+TX seal-proof: 5965 CU, 276 bytes
+TX verify-batch-1-8: 489773 CU, 318 bytes
+TX owner-vetoes-recovery: 7099 CU, 399 bytes
+REJECT cancelled recovery cannot be finalized: 3309 CU, 243 bytes
+TX begin-proof: 15485 CU, 367 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 1048 bytes
+TX upload-chunk: 6389 CU, 456 bytes
+TX seal-proof: 5961 CU, 276 bytes
+TX verify-batch-1-8: 510355 CU, 318 bytes
+TX guardian-proposes-new-recovery: 7576 CU, 498 bytes
+TX finalize-delayed-recovery: 4004 CU, 243 bytes
+PASS delayed PQ recovery changes owners without changing the wallet address
+TX begin-proof: 12489 CU, 367 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 1048 bytes
+TX upload-chunk: 6393 CU, 456 bytes
+TX seal-proof: 5965 CU, 276 bytes
+TX verify-batch-1-8: 504467 CU, 318 bytes
+TX recovered-owner-spends: 8037 CU, 473 bytes
+TX reclaim-proof-rent: 3050 CU, 244 bytes
+TX reclaim-proof-rent: 3050 CU, 244 bytes
+TX reclaim-proof-rent: 3050 CU, 244 bytes
+TX reclaim-proof-rent: 3050 CU, 244 bytes
+TX reclaim-proof-rent: 3050 CU, 244 bytes
+TX reclaim-proof-rent: 3050 CU, 244 bytes
+TX reclaim-proof-rent: 3050 CU, 244 bytes
+TX reclaim-proof-rent: 3050 CU, 244 bytes
+TX reclaim-proof-rent: 3050 CU, 244 bytes
+TX reclaim-proof-rent: 3050 CU, 244 bytes
+LOCALNET PASSED 203 transactions
+PASS deployed SBF binary and immutable loader match pinned artifact
+PASS creation initializes the PDA; repeated initialization does not spend again
+PASS independent Rust CLI verifies the new network-client approval
+PASS interrupted proof upload resumes with exactly eleven total chunks
+PASS 1-of-1 SLH-DSA authorization transfers exact SOL and advances nonce once
+PASS successful execution reclaims temporary proof rent
+PASS replayed approval is rejected before spending additional fees
+PASS classic SPL amount is read from mint decimals and transferred exactly
+PASS network CLI checks deployment and plans without loading a fee-payer key
+PASS noninteractive broadcast is rejected before reading fee-payer keys
+PASS CLI prepares an unsigned SOL intent against current live wallet state
+NETWORK CLIENT LOCALNET PASSED 38 transactions

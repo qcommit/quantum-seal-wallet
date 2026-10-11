@@ -1,0 +1,146 @@
+{
+  "status": "passed",
+  "recordedAt": "2026-10-10T19:56:55Z",
+  "checks": [
+    {
+      "name": "sdk-tests",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exitCode": 0,
+      "seconds": 4.453
+    },
+    {
+      "name": "format",
+      "command": [
+        "npm",
+        "run",
+        "format:check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.345
+    },
+    {
+      "name": "rust-format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.062
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exitCode": 0,
+      "seconds": 0.14
+    },
+    {
+      "name": "rust-tests",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--release",
+        "--workspace"
+      ],
+      "exitCode": 0,
+      "seconds": 0.493
+    },
+    {
+      "name": "verifier-build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--release",
+        "-p",
+        "seal-verify"
+      ],
+      "exitCode": 0,
+      "seconds": 0.069
+    },
+    {
+      "name": "cli-pty",
+      "command": [
+        "python3",
+        "tests/cli-pty.py"
+      ],
+      "exitCode": 0,
+      "seconds": 1.852
+    },
+    {
+      "name": "npm-audit",
+      "command": [
+        "npm",
+        "audit",
+        "--json"
+      ],
+      "exitCode": 0,
+      "seconds": 0.267
+    },
+    {
+      "name": "build-sbf",
+      "command": [
+        "bash",
+        "scripts/build-sbf.sh"
+      ],
+      "exitCode": 0,
+      "seconds": 0.36
+    },
+    {
+      "name": "localnet-run",
+      "command": [
+        "bash",
+        "scripts/test-localnet.sh"
+      ],
+      "exitCode": 0,
+      "seconds": 87.856
+    }
+  ],
+  "rustTestFunctions": 22,
+  "javascriptTests": 32,
+  "nistCaseComparisons": 28,
+  "signatureComponentMutations": 491,
+  "localnetTransactions": 203,
+  "localnetExpectedRejections": 16,
+  "localnetAssertions": 24,
+  "networkClientLocalnet": {
+    "status": "passed",
+    "transactionCount": 38,
+    "maxWireBytes": 1060,
+    "maxComputeUnits": 486796,
+    "publicTransactions": 0
+  },
+  "artifacts": {
+    "target/deploy/seal_wallet.so": {
+      "bytes": 138128,
+      "sha256": "5ef5c3257e63b8c98ec5f29b5b0996749c00b134c8ce123b7bc2579d7993ead5"
+    },
+    "target/release/seal-verify": {
+      "bytes": 590464,
+      "sha256": "8f94569da7f3090e51321b1ad40d7f8003d42fa38f1fea0b307bfc8205e3516a"
+    }
+  },
+  "notPerformed": [
+    "Independent security audit",
+    "Public-cluster deployment",
+    "GitHub-hosted workflow run",
+    "Full ACVP corpus",
+    "RustSec advisory scan",
+    "Browser/mobile wallet testing"
+  ]
+}

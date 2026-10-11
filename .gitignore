@@ -1,0 +1,14 @@
+/target/
+/node_modules/
+/.runtime/
+/dist/
+*.keypair.json
+*.keystore.json
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+
+*.network.json
+*.receipt.jsonl

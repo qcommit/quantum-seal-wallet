@@ -1,0 +1,51 @@
+{
+  "name": "quantum-seal-wallet",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "test": "node --test sdk/test/*.test.mjs",
+    "test:localnet": "node tests/localnet.mjs",
+    "verify": "node sdk/src/cli.mjs verify",
+    "keygen": "node sdk/src/cli.mjs keygen",
+    "bench": "node scripts/benchmark.mjs",
+    "format:check": "prettier --check \"sdk/**/*.mjs\" \"tests/**/*.mjs\" \"scripts/*.mjs\"",
+    "wallet": "node sdk/src/network-cli.mjs",
+    "test:network": "node --test sdk/test/network.test.mjs"
+  },
+  "dependencies": {
+    "@noble/hashes": "2.4.0",
+    "@noble/post-quantum": "0.7.1",
+    "@solana/web3.js": "3.0.2"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
+  },
+  "description": "SLH-DSA Solana smart-wallet core, offline verifier, and explicitly pinned network client.",
+  "exports": {
+    ".": "./sdk/src/index.mjs",
+    "./codec": "./sdk/src/codec.mjs",
+    "./crypto": "./sdk/src/crypto.mjs",
+    "./network": "./sdk/src/network.mjs",
+    "./wallet": "./sdk/src/wallet.mjs"
+  },
+  "bin": {
+    "qsw": "sdk/src/network-cli.mjs",
+    "qsw-offline": "sdk/src/cli.mjs"
+  },
+  "files": [
+    "sdk/src",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "THIRD_PARTY.md",
+    "docs/PROTOCOL.md",
+    "docs/MAINNET.md",
+    "docs/CRYPTOGRAPHY.md",
+    "licenses"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "checks": [
+    "TTY key generation",
+    "TTY transaction review and signing",
+    "passphrase not echoed",
+    "keystore permissions 0600",
+    "approval permissions 0600",
+    "independent Rust verification of CLI output",
+    "missing trusted key rejected"
+  ],
+  "scope": "Synthetic temporary keys only; files removed after the test."
+}

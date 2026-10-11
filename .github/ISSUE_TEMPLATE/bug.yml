@@ -1,0 +1,24 @@
+name: Bug report
+description: A reproducible correctness or usability issue.
+body:
+  - type: markdown
+    attributes:
+      value: Never include seeds, passphrases, private keys, or funded wallet files. Follow SECURITY.md for potential vulnerabilities.
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Include the command, revision and a minimal public or synthetic input.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, CPU architecture, Node, Rust, Agave and platform-tools versions.

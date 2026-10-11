@@ -1,0 +1,10 @@
+[package]
+name = "seal-wallet-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+borsh.workspace = true
+seal-slh-verify = { path = "../slh-verify" }

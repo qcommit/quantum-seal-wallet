@@ -1,0 +1,17 @@
+{
+  "action": {
+    "kind": "transfer",
+    "lamports": "1",
+    "to_hex": "8ed8263d9246c1e2a6af674574e87acb6d744beb5b6e1db735905131c565bdf3"
+  },
+  "declared_index": 0,
+  "epoch": "0",
+  "expiry_slot": "1000",
+  "genesis_hex": "6d5be12cdce5b75e6ea34e5211193d0c00c0193e2ae415a6eb8da92c6bfb71c6",
+  "nonce": "0",
+  "program_hex": "c220edcecc835e0ae98b381e064fdf49879b8a39cd2687cbf2f3f3a65596e00d",
+  "scope": "One signature only. Does not establish current policy, quorum, freshness, or execution.",
+  "signature_valid": true,
+  "trusted_key_matches": true,
+  "wallet_hex": "c829a987a80ff8231c2be529e111474633f9288ad4a785d0368fcd188be2ebb6"
+}

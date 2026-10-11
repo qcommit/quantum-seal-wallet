@@ -1,0 +1,5 @@
+{
+  "source": "https://raw.githubusercontent.com/moby/profiles/main/seccomp/default.json",
+  "upstreamSha256": "6416b47770785a41ac59073cdc77d9fe98517df2799dc83ef207e622de3053f6",
+  "modification": "Allow io_uring_setup, io_uring_enter and io_uring_register required by Agave 3.1.10; all other rules unchanged."
+}

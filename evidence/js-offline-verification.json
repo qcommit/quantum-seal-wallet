@@ -1,0 +1,17 @@
+{
+  "valid": true,
+  "reason": "Signature and pinned key match. Quorum, freshness and execution are not established offline.",
+  "intent": {
+    "genesis": "8MthUWNPwbdVdVYeT5NMfbHC2NSG1cgAXuTvmj9p94fF",
+    "program": "E4oDXEcX4gyxpAxKHPDAmZCKcRydbJaJBrx9FznhwDzc",
+    "wallet": "EUMPNxJ1kporhmqAeUKH7NrNmrjfE1Dg1Ebfwj5i3SQV",
+    "epoch": "0",
+    "nonce": "0",
+    "expiry": "1000",
+    "action": {
+      "kind": "transfer",
+      "to": "Acc4HhHfdQZuG7NfvQadkRBKvfhv4LhaRSqhjsFsADsg",
+      "lamports": "1"
+    }
+  }
+}

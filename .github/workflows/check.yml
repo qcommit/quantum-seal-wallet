@@ -1,0 +1,41 @@
+name: Check
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CARGO_BUILD_JOBS: 4
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install the pinned Rust toolchain
+        run: rustup toolchain install 1.89.0 --profile minimal --component rustfmt --component clippy
+      - run: npm ci --ignore-scripts --no-fund
+      - run: npm audit --audit-level=moderate
+      - run: npm run format:check
+      - run: npm test
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --locked --workspace --all-targets -- -D warnings
+      - run: cargo test --locked --release --workspace
+      - run: cargo build --locked --release -p seal-verify
+      - name: Independent verification of the SDK fixture
+        run: |
+          KEY=$(node --input-type=module -e "import fs from 'node:fs';console.log(JSON.parse(fs.readFileSync('fixtures/sdk-approval.json')).publicKey)")
+          target/release/seal-verify --proof fixtures/sdk-approval.json --key "$KEY"
+      - run: python3 tests/cli-pty.py
+      - name: Check public-release files
+        run: python3 scripts/check-release.py
