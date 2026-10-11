@@ -1,4 +1,4 @@
-    Finished `release` profile [optimized] target(s) in 0.13s
+    Finished `release` profile [optimized] target(s) in 0.19s
      Running unittests src/lib.rs (target/release/deps/seal_slh_verify-31e68702e3536c49)
 
 running 0 tests
@@ -8,19 +8,19 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests/verification.rs (target/release/deps/verification-3d24bf231a733a34)
 
 running 5 tests
-test staged_verification_matches_complete_verification ... ok
 test wrong_key_message_context_and_lengths_fail ... ok
+test staged_verification_matches_complete_verification ... ok
 test nist_external_pure_signature_verification ... ok
 test nist_published_signature_generation_outputs_verify ... ok
 test every_signature_node_is_authenticated ... ok
 
-test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
 
      Running unittests src/main.rs (target/release/deps/seal_verify-77ccf38d8251bb20)
 
 running 2 tests
-test tests::noble_signature_verifies_with_independent_rust_implementation ... ok
 test tests::wrong_key_and_duplicate_json_fields_fail ... ok
+test tests::noble_signature_verifies_with_independent_rust_implementation ... ok
 
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
@@ -36,30 +36,43 @@ running 0 tests
 
 test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
+     Running tests/intent_properties.rs (target/release/deps/intent_properties-a10a203b35d14904)
+
+running 7 tests
+test edge_case_corpus_matches_recorded_results ... ok
+test every_truncation_of_a_valid_intent_is_rejected ... ok
+test intents_over_850_bytes_are_always_rejected ... ok
+test version_two_intents_always_carry_a_bounded_fee ... ok
+test generated_valid_intents_round_trip ... ok
+test decode_never_panics_on_mutated_valid_intents ... ok
+test decode_never_panics_on_arbitrary_bytes_up_to_900 ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s
+
      Running tests/policy.rs (target/release/deps/policy-035d09c6265bbe31)
 
 running 19 tests
-test intents_reject_trailing_data_unknown_actions_and_zero_transfers ... ok
-test approvals_cannot_expire_beyond_the_horizon ... ok
-test counters_fail_closed_at_u64_max ... ok
-test epoch_nonce_expiry_and_lock_are_enforced ... ok
-test invocation_cannot_delegate_undeclared_signers_or_write_the_wallet ... ok
-test digest_and_active_key_are_checked ... ok
 test all_one_to_three_owner_threshold_subsets_match_the_policy ... ok
-test guardian_authorization_cannot_spend ... ok
+test approvals_cannot_expire_beyond_the_horizon ... ok
+test epoch_nonce_expiry_and_lock_are_enforced ... ok
+test intents_reject_trailing_data_unknown_actions_and_zero_transfers ... ok
+test counters_fail_closed_at_u64_max ... ok
+test digest_and_active_key_are_checked ... ok
+test invocation_cannot_delegate_undeclared_signers_or_write_the_wallet ... ok
+test owners_can_veto_recovery_and_rotation_cancels_it ... ok
+test rotation_preserves_the_deposit_identity ... ok
 test largest_invocation_with_a_fee_refund_fits_the_intent_limit ... ok
 test mainnet_wallets_need_a_day_long_recovery_delay ... ok
-test rotation_preserves_the_deposit_identity ... ok
-test recovery_cannot_finalize_before_its_slot ... ok
 test serialized_account_layouts_have_fixed_sizes ... ok
-test quorum_counts_unique_owner_indices ... ok
-test policy_requires_distinct_nonzero_keys_and_canonical_padding ... ok
-test owners_can_veto_recovery_and_rotation_cancels_it ... ok
-test recovery_must_be_a_separate_key_with_a_bounded_delay ... ok
+test guardian_authorization_cannot_spend ... ok
 test signatures_are_not_approved_until_the_last_layer ... ok
+test policy_requires_distinct_nonzero_keys_and_canonical_padding ... ok
+test recovery_must_be_a_separate_key_with_a_bounded_delay ... ok
+test quorum_counts_unique_owner_indices ... ok
 test version_two_intents_carry_a_bounded_fee_refund ... ok
+test recovery_cannot_finalize_before_its_slot ... ok
 
-test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
    Doc-tests seal_slh_verify
 

@@ -60,9 +60,13 @@ report = {'status':'passed','recordedAt':time.strftime('%Y-%m-%dT%H:%M:%SZ',time
     'networkClientLocalnet': {k: json.loads((EVIDENCE/'network-localnet.json').read_text())[k] for k in ['status','transactionCount','maxWireBytes','maxComputeUnits','publicTransactions']},
     'artifacts':{name:{'bytes':(ROOT/name).stat().st_size,'sha256':hashlib.sha256((ROOT/name).read_bytes()).hexdigest()}
                  for name in ['target/deploy/seal_wallet.so','target/release/seal-verify']},
-    'devnetRehearsal': {k: json.loads((EVIDENCE/'devnet-rehearsal.json').read_text()).get(k)
-                        for k in ['status','program','programSha256','transactionCount','totalFeeLamports']}
-                       if (EVIDENCE/'devnet-rehearsal.json').exists() else None,
+    # The local build is this machine's architecture; the canonical (x86_64 CI) hash is
+    # the one recorded in PROGRAM_SHA256 and deployed.
+    'canonicalProgramSha256': (ROOT/'PROGRAM_SHA256').read_text().split()[0],
+    'devnetRehearsals': [{k: json.loads((EVIDENCE/name).read_text()).get(k)
+                          for k in ['status','program','programSha256','transactionCount','totalFeeLamports']}
+                         for name in ['devnet-rehearsal-immutable.json', 'devnet-rehearsal.json']
+                         if (EVIDENCE/name).exists()],
     'notPerformed':['Independent third-party security audit','Mainnet deployment',
                     'Full ACVP corpus','RustSec advisory scan','Mobile wallet testing']}
 (EVIDENCE/'validation.json').write_text(json.dumps(report,indent=2)+'\n')

@@ -8,7 +8,7 @@ Quantum Seal Wallet is a Solana program, JavaScript SDK and command line, and an
 | --- | --- |
 | Wallet program | Reproducible canonical build (`seal_wallet.so` v0.2.0, 141,888 bytes, SHA-256 `e5442efb…d00d37`, checked by CI); deployed and rehearsed on **devnet**; **not yet deployed to mainnet** |
 | Network client | Mainnet-ready: pins genesis, program ID, binary hash and immutability before every submission |
-| Validation | Local validator: 264 transactions across two suites; devnet: real create, SOL and SPL transfer runs against upgradeable and immutable deployments; 491 tamper cases rejected; 28 NIST vector comparisons |
+| Validation | Local validator: 311 transactions across two suites; devnet: real create, SOL and SPL transfer runs against upgradeable and immutable deployments; 491 tamper cases rejected; 28 NIST vector comparisons |
 | Audit | **Not independently audited.** Do not deposit real funds until a reviewed program is deployed |
 | Wallet app | Command line, plus a browser extension in a separate repository (see [How people will use it](#how-people-will-use-it)) |
 
@@ -28,7 +28,7 @@ Website: https://quantum-seal.vercel.app
 | SOL and classic SPL | Local-validator examples execute a SOL transfer and a restricted classic SPL Token transfer. |
 | Independently inspectable verification | Standalone native `seal-verify` Rust CLI does not call Noble, the website or RPC. |
 
-**Not included:** ML-DSA, public devnet deployment, a Phantom-like extension, mobile UX, hardware custody, BIP-39 recovery, arbitrary swaps, generic NFT/DeFi support, arbitrary CPI adapters, an audit or NIST cryptographic module validation.
+**Not included:** ML-DSA, mobile UX, hardware custody, BIP-39 recovery, arbitrary swaps, generic NFT/DeFi support, arbitrary CPI adapters, an audit or NIST cryptographic module validation.
 
 ## System overview
 
@@ -80,7 +80,7 @@ Users hold their own keys and pay their own fees; there is no hosted relayer.
 - **Fee key (ordinary Solana):** a separate small Ed25519 key holding a little SOL for network fees. It submits the 12 transactions a transfer needs but has no authority over the wallet's funds; losing it costs at most its fee balance. Each transfer can carry a signed fee refund (version-2 intent) that the wallet pays back to the fee key, so its balance stays topped up.
 - **Wallet address:** the PDA. Deposits go here, and it stays the same across key rotation and recovery.
 
-Today both keys are managed with the command line. The intended consumer client is a **browser extension** in the style of Phantom: it keeps the owner key in extension storage, shows the decoded transfer in its own window before sealing, signs locally, and submits with the user's fee key. That client is a separate project and needs its own security review.
+Both keys are managed by the command line or by the Quantum Seal **browser extension** (a separate repository, Phantom-style): it keeps the owner key encrypted in extension storage, shows the decoded transfer in its own window before sealing, signs locally, and submits with the user's fee key. The extension runs on devnet today and has its own security review.
 
 ## Devnet rehearsal
 
@@ -91,8 +91,8 @@ On devnet, `HPopUzhpfG7Zn7BBuQ9FkJKSRB9e3vfgwrySCG7b7wHy` is an immutable deploy
 | Transactions per transfer | 12 (open + first chunk, 9 chunks, last chunk + seal + verify, execute + refund) |
 | Base fees per transfer | 60,000 lamports (0.00006 SOL) |
 | Refundable proof deposit | 0.0569 SOL, returned in the same send |
-| Time per transfer, end to end | 53–72 s across runs (varies with public-RPC conditions) |
-| Largest compute use (verification batch) | 489,321 CU |
+| Time per transfer, end to end | 56–63 s across the recorded v0.2.0 runs (varies with public-RPC conditions) |
+| Largest compute use (verification batch) | 498,313–539,508 CU across runs |
 | Signing time (JavaScript) | about 1.0 s |
 
 ## Canonical build
@@ -170,18 +170,18 @@ The included [validation report](evidence/validation.json) records the following
 
 | Check | Recorded result |
 | --- | ---: |
-| Rust test functions | 26 |
+| Rust test functions | 33 |
 | JavaScript tests | 41 |
 | Selected NIST comparisons | 28 |
 | Signature-component mutations | 491 |
-| Confirmed local-validator transactions | 186 (+78 in the network-client suite) |
-| Expected rejected transactions | 17 |
+| Confirmed local-validator transactions | 199 (+112 in the network-client suite) |
+| Expected rejected transactions | 18 |
 | Devnet rehearsal transactions | 25 per run (create, SOL transfer, SPL transfer) |
-| Program SBF compilation | Passed: canonical x86_64 `e5442efb…d00d37` (v0.2.0); local ARM64 `066ad312…` (141,888 bytes each) |
+| Program SBF compilation | Passed: canonical x86_64 `e5442efb…d00d37` (v0.2.0, from CI); local ARM64 `066ad312…` in the validation report (141,888 bytes each) |
 | Maximum observed transaction size | 1,145 bytes |
-| Maximum observed transaction compute | 513,117 CU |
+| Maximum observed transaction compute | 524,876 CU |
 
-The recorded localnet suites exercise 2-of-2 SOL execution, replay protection, changing owner policy without changing the deposit address, old-epoch rejection, staged signature corruption, SPL Token CPI, failed-CPI rollback, delayed guardian recovery, owner cancellation, guardian approvals that try to spend, proofs from another wallet, one approval uploaded twice, signed fee refunds (including a tampered refund account and the CPI path), the expiry horizon, interrupted-upload resumption and proof-rent reclamation. They include **26 + 17 localnet assertions**.
+The recorded localnet suites exercise 2-of-2 SOL execution, replay protection, changing owner policy without changing the deposit address, old-epoch rejection, staged signature corruption, SPL Token CPI, failed-CPI rollback, delayed guardian recovery, owner cancellation, guardian approvals that try to spend, proofs from another wallet, one approval uploaded twice, signed fee refunds (including a tampered refund account and the CPI path), the expiry horizon, interrupted-upload resumption and proof-rent reclamation. They include **27 + 20 localnet assertions**.
 
 Performance measurements are in [evidence/benchmark.json](evidence/benchmark.json) and were made on Linux ARM64 with Node 24 using ten measured samples. The median SDK signing time, **including a self-check**, was approximately **953 ms**; median SDK verification was **1.13 ms**, and the independent Rust CLI including process startup was **3.00 ms**. Those are local measurements, **not** guarantees across devices or networks.
 
@@ -210,7 +210,7 @@ An included fixture and a localnet pass demonstrate bounded behavior, **not** a 
 
 The keystore uses scrypt and AES-256-GCM with restricted file permissions. JavaScript cannot guarantee secret-memory erasure, the recovery guardian represents a privileged delayed takeover path, and a wallet-program upgrade authority can bypass the authorization checks by changing the program. External CPI targets are **not** made trustworthy by signing the invocation. The original relay client accepts only loopback RPC endpoints; the network client (`sdk/src/network-cli.mjs`) targets public clusters only through a pinned, verified deployment.
 
-Read [SECURITY.md](SECURITY.md) before running any signing code and [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) before making security claims. **This project has not been independently audited and has not yet been deployed to a public cluster.**
+Read [SECURITY.md](SECURITY.md) before running any signing code and [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) before making security claims. **This project has not been independently audited. It is deployed on devnet only, not on mainnet.**
 
 ## Contributions and licensing
 

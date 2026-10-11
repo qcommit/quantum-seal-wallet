@@ -37,8 +37,9 @@ program review; broader upstream corpus coverage and fuzzing; a production key
 storage/recovery design; guardian monitoring and cancellation-race analysis;
 external-program allowlists and transaction simulation/review; reproducible binary
 builds and supply-chain review; cluster/deployment verification and an explicit
-upgrade-authority policy. A public devnet deployment has not yet been tested.
+upgrade-authority policy. Devnet rehearsals of the immutable v0.2.0 deployment pass (`evidence/devnet-rehearsal*.json`).
 
-A Phantom-like extension, mobile signing, arbitrary swap-route compatibility,
-Token-2022 extensions, programmable/compressed NFTs, hardware custody and
-production support are not included in v0.1.0. Do not advertise them as shipped.
+The Phantom-style browser extension is a separate repository (devnet today, not yet in
+the Chrome Web Store). Mobile signing, arbitrary swap-route compatibility, Token-2022
+extensions, programmable/compressed NFTs, hardware custody and production support are
+not included in v0.2.0. Do not advertise them as shipped.

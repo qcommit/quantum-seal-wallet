@@ -35,8 +35,9 @@ verification, and a reviewed source commit/package. An honestly labelled local
 research release does not require consumer-wallet feature parity or a completed
 security audit.
 
-Public devnet creation and transfers are the next network milestone. They
-require an explicit deployment plan and authorization. Mainnet readiness is a
-separate milestone requiring deployment/upgrade-policy decisions and independent
-security review. Do not bypass the current loopback client restriction or use
-real funds merely to make an open-source demonstration look complete.
+Public devnet creation and transfers are done: an immutable v0.2.0 deployment
+(`HPopUzhpfG7Zn7BBuQ9FkJKSRB9e3vfgwrySCG7b7wHy`) ran real create, SOL and SPL flows through
+the pinned network client (`evidence/devnet-rehearsal*.json`). Mainnet is a separate,
+manual step (`docs/LAUNCH.md`). The original relay client still accepts only loopback
+endpoints; public clusters go through the network client. Do not use real funds merely
+to make an open-source demonstration look complete.

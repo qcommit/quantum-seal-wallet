@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "recordedAt": "2026-10-11T07:02:13Z",
+  "recordedAt": "2026-10-11T11:35:30Z",
   "checks": [
     {
       "name": "sdk-tests",
@@ -9,7 +9,7 @@
         "test"
       ],
       "exitCode": 0,
-      "seconds": 5.262
+      "seconds": 5.842
     },
     {
       "name": "format",
@@ -19,7 +19,7 @@
         "format:check"
       ],
       "exitCode": 0,
-      "seconds": 0.614
+      "seconds": 0.79
     },
     {
       "name": "rust-format",
@@ -31,7 +31,7 @@
         "--check"
       ],
       "exitCode": 0,
-      "seconds": 0.135
+      "seconds": 0.114
     },
     {
       "name": "clippy",
@@ -46,7 +46,7 @@
         "warnings"
       ],
       "exitCode": 0,
-      "seconds": 0.338
+      "seconds": 0.292
     },
     {
       "name": "rust-tests",
@@ -58,7 +58,7 @@
         "--workspace"
       ],
       "exitCode": 0,
-      "seconds": 0.673
+      "seconds": 1.091
     },
     {
       "name": "verifier-build",
@@ -71,7 +71,7 @@
         "seal-verify"
       ],
       "exitCode": 0,
-      "seconds": 0.087
+      "seconds": 0.115
     },
     {
       "name": "cli-pty",
@@ -80,7 +80,7 @@
         "tests/cli-pty.py"
       ],
       "exitCode": 0,
-      "seconds": 2.28
+      "seconds": 2.511
     },
     {
       "name": "npm-audit",
@@ -90,7 +90,7 @@
         "--json"
       ],
       "exitCode": 0,
-      "seconds": 0.441
+      "seconds": 0.488
     },
     {
       "name": "build-sbf",
@@ -99,7 +99,7 @@
         "scripts/build-sbf.sh"
       ],
       "exitCode": 0,
-      "seconds": 0.549
+      "seconds": 0.59
     },
     {
       "name": "localnet-run",
@@ -108,40 +108,50 @@
         "scripts/test-localnet.sh"
       ],
       "exitCode": 0,
-      "seconds": 124.491
+      "seconds": 162.333
     }
   ],
-  "rustTestFunctions": 26,
+  "rustTestFunctions": 33,
   "javascriptTests": 41,
   "nistCaseComparisons": 28,
   "signatureComponentMutations": 491,
-  "localnetTransactions": 186,
-  "localnetExpectedRejections": 17,
-  "localnetAssertions": 26,
+  "localnetTransactions": 199,
+  "localnetExpectedRejections": 18,
+  "localnetAssertions": 27,
   "networkClientLocalnet": {
     "status": "passed",
-    "transactionCount": 78,
+    "transactionCount": 112,
     "maxWireBytes": 1145,
-    "maxComputeUnits": 513006,
+    "maxComputeUnits": 513010,
     "publicTransactions": 0
   },
   "artifacts": {
     "target/deploy/seal_wallet.so": {
-      "bytes": 141744,
-      "sha256": "4fbf18f66470322941b907adf03ebcd995385d35ac8c7ae4e3aa5ef63dd7a049"
+      "bytes": 141888,
+      "sha256": "066ad31271b1d04bc52c135bb7ddcf8813cf9d34112a5796bb5d82fd53417296"
     },
     "target/release/seal-verify": {
       "bytes": 590512,
       "sha256": "06f2bd535f056bef4a6778421d51d31fd250c038f8fd60f8c5908c5774bd34f3"
     }
   },
-  "devnetRehearsal": {
-    "status": "passed",
-    "program": "6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT",
-    "programSha256": "4fbf18f66470322941b907adf03ebcd995385d35ac8c7ae4e3aa5ef63dd7a049",
-    "transactionCount": 25,
-    "totalFeeLamports": "125000"
-  },
+  "canonicalProgramSha256": "e5442efbe6b7eccc372826392870b4b7f1ba3bff769deac8908881cc15d00d37",
+  "devnetRehearsals": [
+    {
+      "status": "passed",
+      "program": "HPopUzhpfG7Zn7BBuQ9FkJKSRB9e3vfgwrySCG7b7wHy",
+      "programSha256": "e5442efbe6b7eccc372826392870b4b7f1ba3bff769deac8908881cc15d00d37",
+      "transactionCount": 25,
+      "totalFeeLamports": "125000"
+    },
+    {
+      "status": "passed",
+      "program": "6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT",
+      "programSha256": "e5442efbe6b7eccc372826392870b4b7f1ba3bff769deac8908881cc15d00d37",
+      "transactionCount": 25,
+      "totalFeeLamports": "125000"
+    }
+  ],
   "notPerformed": [
     "Independent third-party security audit",
     "Mainnet deployment",

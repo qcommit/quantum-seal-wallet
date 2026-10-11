@@ -11,9 +11,9 @@ the core release archive or npm package. It may explain the protocol and link to
 a verified core release; it must not collect secret keys or claim a live deployment
 that has not been verified.
 
-`../quantum-seal-extension` is a separately scoped integration project. Publication
-is undecided. The initial deliverable is the integration/security contract, not a
-released signing extension. Any future extension must keep secret-key operations
+`../quantum-seal-extension` is the browser extension: a send/receive/hold wallet built
+on this SDK, working on devnet with its own security review and end-to-end tests, not
+yet in the Chrome Web Store. The extension must keep secret-key operations
 out of page scripts and expose a tightly reviewed request interface. Arbitrary
 Solana `signTransaction` compatibility must not be advertised: PQ wallet approvals
 are canonical program intents, not Ed25519 transaction signatures.

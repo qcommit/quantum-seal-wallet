@@ -2,52 +2,259 @@
 > quantum-seal-wallet@0.1.0 test
 > node --test sdk/test/*.test.mjs
 
-✔ binary intent is stable and round trips without JSON canonicalization (1.310265ms)
-✔ truncation at every byte and trailing bytes are rejected (0.971826ms)
-✔ every authorization field changes the intent digest (6.250407ms)
-✔ integer encoding rejects rounded numbers, negative values and noncanonical strings (0.390327ms)
-✔ owner policies require distinct keys, a valid threshold and separate guardian (0.375799ms)
-✔ PDA initialization binds the original policy, salt, program and genesis (19.954013ms)
-✔ proof address binds uploader and signer index (1.569742ms)
-✔ CPI refuses undeclared signers, duplicate accounts and writable wallet delegation (0.739262ms)
-✔ strict JSON rejects duplicate escaped keys, trailing tokens and deep objects (0.958386ms)
-✔ local research client refuses public or ambiguous RPC hosts (1.376282ms)
-✔ version-2 intents carry a bounded fee refund and round trip (1.545725ms)
-✔ published SDK fixture verifies only against a separately trusted key (17.070295ms)
-✔ altered signature and intent are rejected (10.970738ms)
-✔ approval schema rejects unknown fields, duplicate fields and noncanonical encodings (0.586763ms)
-✔ one stateless key signs repeated messages with distinct randomized signatures (2765.792247ms)
-✔ encrypted keystore round trips and rejects wrong passphrases or tampering (2171.607289ms)
-✔ explicit mainnet profile validates only its known genesis and HTTPS (7.666882ms)
-✔ RPC reporting another cluster is rejected before inspecting program code (1.834419ms)
-✔ immutable loader-v2 program bytes are checked including zero padding (1.287977ms)
-✔ wrong binary, wrong loader, and missing executable deployment are rejected (0.95701ms)
-✔ loader-v3 checks ProgramData derivation, owner, and immutable authority (10.738605ms)
-✔ network session binds connection identity; immutable deployments get a light re-check (1.322665ms)
-✔ upgradeable deployments are re-verified byte for byte before every transaction (3.694502ms)
-✔ unconfigured remote connection cannot use the legacy local path (0.480986ms)
-✔ simulation and fee ceiling are enforced before any broadcast (28.318733ms)
-✔ signed signature is journaled before broadcast and success requires finalized metadata (9.002508ms)
-✔ expired preflight blockhash is never broadcast (2.880487ms)
-✔ ambiguous submission returns its original signature and never re-signs or resends (3.840106ms)
-✔ timeout with no status is unknown rather than reported as successful (8.338015ms)
-✔ confirmed instruction error is not mistaken for a successful transfer (4.067998ms)
-✔ arbitrary outer program instructions are blocked (2.062199ms)
-✔ exact SOL parsing has no floating-point rounding or implicit truncation (1.096341ms)
-✔ descriptor validation recomputes the permanent address and initial policy commitment (10.551194ms)
-✔ wallet status and transfer preparation verify state and retain rent (21.021745ms)
-✔ rate-limited RPC responses are retried with backoff, other errors are not (13.019945ms)
-✔ connection failures are retried with backoff and surface after the last attempt (7.519839ms)
-✔ portable base64 matches Node for every length and rejects noncanonical input (2.496191ms)
-✔ constant-time comparison handles length and content differences (0.126515ms)
-✔ the published fixture verifies through the portable module (12.593649ms)
-✔ browser and Node keystores are byte-compatible in both directions (2962.483421ms)
-✔ fee-key keystores are bound to their algorithm label (1266.090877ms)
-ℹ tests 41
-ℹ suites 0
-ℹ pass 41
-ℹ fail 0
-ℹ cancelled 0
-ℹ skipped 0
-ℹ todo 0
-ℹ duration_ms 5115.027746
+TAP version 13
+# Subtest: binary intent is stable and round trips without JSON canonicalization
+ok 1 - binary intent is stable and round trips without JSON canonicalization
+  ---
+  duration_ms: 1.229272
+  type: 'test'
+  ...
+# Subtest: truncation at every byte and trailing bytes are rejected
+ok 2 - truncation at every byte and trailing bytes are rejected
+  ---
+  duration_ms: 0.918437
+  type: 'test'
+  ...
+# Subtest: every authorization field changes the intent digest
+ok 3 - every authorization field changes the intent digest
+  ---
+  duration_ms: 9.043976
+  type: 'test'
+  ...
+# Subtest: integer encoding rejects rounded numbers, negative values and noncanonical strings
+ok 4 - integer encoding rejects rounded numbers, negative values and noncanonical strings
+  ---
+  duration_ms: 0.405506
+  type: 'test'
+  ...
+# Subtest: owner policies require distinct keys, a valid threshold and separate guardian
+ok 5 - owner policies require distinct keys, a valid threshold and separate guardian
+  ---
+  duration_ms: 0.382498
+  type: 'test'
+  ...
+# Subtest: PDA initialization binds the original policy, salt, program and genesis
+ok 6 - PDA initialization binds the original policy, salt, program and genesis
+  ---
+  duration_ms: 13.366483
+  type: 'test'
+  ...
+# Subtest: proof address binds uploader and signer index
+ok 7 - proof address binds uploader and signer index
+  ---
+  duration_ms: 4.496987
+  type: 'test'
+  ...
+# Subtest: CPI refuses undeclared signers, duplicate accounts and writable wallet delegation
+ok 8 - CPI refuses undeclared signers, duplicate accounts and writable wallet delegation
+  ---
+  duration_ms: 0.498835
+  type: 'test'
+  ...
+# Subtest: strict JSON rejects duplicate escaped keys, trailing tokens and deep objects
+ok 9 - strict JSON rejects duplicate escaped keys, trailing tokens and deep objects
+  ---
+  duration_ms: 0.826485
+  type: 'test'
+  ...
+# Subtest: local research client refuses public or ambiguous RPC hosts
+ok 10 - local research client refuses public or ambiguous RPC hosts
+  ---
+  duration_ms: 2.043916
+  type: 'test'
+  ...
+# Subtest: version-2 intents carry a bounded fee refund and round trip
+ok 11 - version-2 intents carry a bounded fee refund and round trip
+  ---
+  duration_ms: 1.726346
+  type: 'test'
+  ...
+# Subtest: published SDK fixture verifies only against a separately trusted key
+ok 12 - published SDK fixture verifies only against a separately trusted key
+  ---
+  duration_ms: 31.192498
+  type: 'test'
+  ...
+# Subtest: altered signature and intent are rejected
+ok 13 - altered signature and intent are rejected
+  ---
+  duration_ms: 22.857038
+  type: 'test'
+  ...
+# Subtest: approval schema rejects unknown fields, duplicate fields and noncanonical encodings
+ok 14 - approval schema rejects unknown fields, duplicate fields and noncanonical encodings
+  ---
+  duration_ms: 2.622064
+  type: 'test'
+  ...
+# Subtest: one stateless key signs repeated messages with distinct randomized signatures
+ok 15 - one stateless key signs repeated messages with distinct randomized signatures
+  ---
+  duration_ms: 2505.826288
+  type: 'test'
+  ...
+# Subtest: encrypted keystore round trips and rejects wrong passphrases or tampering
+ok 16 - encrypted keystore round trips and rejects wrong passphrases or tampering
+  ---
+  duration_ms: 2869.936564
+  type: 'test'
+  ...
+# Subtest: explicit mainnet profile validates only its known genesis and HTTPS
+ok 17 - explicit mainnet profile validates only its known genesis and HTTPS
+  ---
+  duration_ms: 10.287936
+  type: 'test'
+  ...
+# Subtest: RPC reporting another cluster is rejected before inspecting program code
+ok 18 - RPC reporting another cluster is rejected before inspecting program code
+  ---
+  duration_ms: 8.349524
+  type: 'test'
+  ...
+# Subtest: immutable loader-v2 program bytes are checked including zero padding
+ok 19 - immutable loader-v2 program bytes are checked including zero padding
+  ---
+  duration_ms: 1.856924
+  type: 'test'
+  ...
+# Subtest: wrong binary, wrong loader, and missing executable deployment are rejected
+ok 20 - wrong binary, wrong loader, and missing executable deployment are rejected
+  ---
+  duration_ms: 1.910508
+  type: 'test'
+  ...
+# Subtest: loader-v3 checks ProgramData derivation, owner, and immutable authority
+ok 21 - loader-v3 checks ProgramData derivation, owner, and immutable authority
+  ---
+  duration_ms: 22.353355
+  type: 'test'
+  ...
+# Subtest: network session binds connection identity; immutable deployments get a light re-check
+ok 22 - network session binds connection identity; immutable deployments get a light re-check
+  ---
+  duration_ms: 3.135524
+  type: 'test'
+  ...
+# Subtest: upgradeable deployments are re-verified byte for byte before every transaction
+ok 23 - upgradeable deployments are re-verified byte for byte before every transaction
+  ---
+  duration_ms: 17.509821
+  type: 'test'
+  ...
+# Subtest: unconfigured remote connection cannot use the legacy local path
+ok 24 - unconfigured remote connection cannot use the legacy local path
+  ---
+  duration_ms: 0.623876
+  type: 'test'
+  ...
+# Subtest: simulation and fee ceiling are enforced before any broadcast
+ok 25 - simulation and fee ceiling are enforced before any broadcast
+  ---
+  duration_ms: 30.399517
+  type: 'test'
+  ...
+# Subtest: signed signature is journaled before broadcast and success requires finalized metadata
+ok 26 - signed signature is journaled before broadcast and success requires finalized metadata
+  ---
+  duration_ms: 8.520676
+  type: 'test'
+  ...
+# Subtest: expired preflight blockhash is never broadcast
+ok 27 - expired preflight blockhash is never broadcast
+  ---
+  duration_ms: 3.579302
+  type: 'test'
+  ...
+# Subtest: ambiguous submission returns its original signature and never re-signs or resends
+ok 28 - ambiguous submission returns its original signature and never re-signs or resends
+  ---
+  duration_ms: 3.870952
+  type: 'test'
+  ...
+# Subtest: timeout with no status is unknown rather than reported as successful
+ok 29 - timeout with no status is unknown rather than reported as successful
+  ---
+  duration_ms: 15.029085
+  type: 'test'
+  ...
+# Subtest: confirmed instruction error is not mistaken for a successful transfer
+ok 30 - confirmed instruction error is not mistaken for a successful transfer
+  ---
+  duration_ms: 7.505375
+  type: 'test'
+  ...
+# Subtest: arbitrary outer program instructions are blocked
+ok 31 - arbitrary outer program instructions are blocked
+  ---
+  duration_ms: 2.968563
+  type: 'test'
+  ...
+# Subtest: exact SOL parsing has no floating-point rounding or implicit truncation
+ok 32 - exact SOL parsing has no floating-point rounding or implicit truncation
+  ---
+  duration_ms: 0.740149
+  type: 'test'
+  ...
+# Subtest: descriptor validation recomputes the permanent address and initial policy commitment
+ok 33 - descriptor validation recomputes the permanent address and initial policy commitment
+  ---
+  duration_ms: 11.981674
+  type: 'test'
+  ...
+# Subtest: wallet status and transfer preparation verify state and retain rent
+ok 34 - wallet status and transfer preparation verify state and retain rent
+  ---
+  duration_ms: 26.233731
+  type: 'test'
+  ...
+# Subtest: rate-limited RPC responses are retried with backoff, other errors are not
+ok 35 - rate-limited RPC responses are retried with backoff, other errors are not
+  ---
+  duration_ms: 15.638193
+  type: 'test'
+  ...
+# Subtest: connection failures are retried with backoff and surface after the last attempt
+ok 36 - connection failures are retried with backoff and surface after the last attempt
+  ---
+  duration_ms: 9.857965
+  type: 'test'
+  ...
+# Subtest: portable base64 matches Node for every length and rejects noncanonical input
+ok 37 - portable base64 matches Node for every length and rejects noncanonical input
+  ---
+  duration_ms: 2.831377
+  type: 'test'
+  ...
+# Subtest: constant-time comparison handles length and content differences
+ok 38 - constant-time comparison handles length and content differences
+  ---
+  duration_ms: 0.177153
+  type: 'test'
+  ...
+# Subtest: the published fixture verifies through the portable module
+ok 39 - the published fixture verifies through the portable module
+  ---
+  duration_ms: 21.303524
+  type: 'test'
+  ...
+# Subtest: browser and Node keystores are byte-compatible in both directions
+ok 40 - browser and Node keystores are byte-compatible in both directions
+  ---
+  duration_ms: 3105.124933
+  type: 'test'
+  ...
+# Subtest: fee-key keystores are bound to their algorithm label
+ok 41 - fee-key keystores are bound to their algorithm label
+  ---
+  duration_ms: 1584.496215
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5604.739857

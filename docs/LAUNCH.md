@@ -9,7 +9,7 @@ manual deployment and the follow-up edits in the extension and website.
   SHA-256 `e5442efbe6b7eccc372826392870b4b7f1ba3bff769deac8908881cc15d00d37`, also recorded in
   `PROGRAM_SHA256` and re-checked by the *Reproducible program build* workflow.
 - Do not deploy a binary built on an ARM64 machine (including the Spark): it is valid but
-  has a different hash (`4fbf18f6…`), so third parties building on x86_64 could not match it.
+  has a different hash (`066ad312…` for v0.2.0), so third parties building on x86_64 could not match it.
 - Download the release asset and check it before deploying:
 
 ```sh
@@ -77,4 +77,11 @@ The script re-verifies the deployment on-chain before it writes the pins.
 
 In `quantum-seal-website/public/site.config.mjs`, set `programId` to the program address
 and redeploy the site (`vercel deploy --prod --yes`). The "Live on Solana mainnet" badge
-and explorer link appear; no page copy changes.
+and explorer link appear.
+
+## 8. Publish the extension, then point the site at it
+
+Package and submit the extension (`quantum-seal-extension/docs/STORE-LISTING.md`). Once
+the Chrome Web Store listing is public, set `extensionStoreUrl` in `site.config.mjs` to
+its `https://chromewebstore.google.com/…` address and redeploy: every "Get" button then
+installs from the store and the extension status lines switch to their published text.
