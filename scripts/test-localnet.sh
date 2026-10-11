@@ -8,9 +8,11 @@ SOLANA_BIN=${SOLANA_BIN:-$(dirname "$(command -v solana-test-validator)")}
 test -x "$SOLANA_BIN/solana-test-validator"
 test -f target/deploy/seal_wallet.so
 mkdir -p .runtime evidence
-CPUS=${QS_CPUSET:-$(python3 -c 'import os; print(",".join(map(str, sorted(os.sched_getaffinity(0))[:4])))')}
+# At most four CPUs (fewer on smaller machines, e.g. 2-vCPU CI runners).
+NCPU=${QS_CPUS:-$(python3 -c 'import os; print(min(4, len(os.sched_getaffinity(0))))')}
+CPUS=${QS_CPUSET:-$(python3 -c "import os; print(','.join(map(str, sorted(os.sched_getaffinity(0))[:$NCPU])))")}
 docker build -t quantum-seal-localnet:0.1.0 -f scripts/Dockerfile.localnet .
-exec docker run --rm --network none --cpuset-cpus "$CPUS" --cpus 4 --memory 4g \
+exec docker run --rm --network none --cpuset-cpus "$CPUS" --cpus "$NCPU" --memory 4g \
   --pids-limit 512 --cap-drop ALL --security-opt no-new-privileges \
   --security-opt "seccomp=$ROOT/scripts/seccomp-localnet.json" \
   --user "$(id -u):$(id -g)" --read-only --tmpfs /tmp:rw,nosuid,nodev,size=256m \
