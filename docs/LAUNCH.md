@@ -5,18 +5,23 @@ manual deployment and the follow-up edits in the extension and website.
 
 ## 1. Reviewed, reproducible build (done)
 
-- Release `v0.1.0`, `seal_wallet.so`, 141,744 bytes,
-  SHA-256 `4fbf18f66470322941b907adf03ebcd995385d35ac8c7ae4e3aa5ef63dd7a049`.
-- Rebuild from a clean clone and compare before deploying:
+- Release `v0.1.1`, canonical `seal_wallet.so` (built on Linux x86_64), 141,744 bytes,
+  SHA-256 `c53d5da22ae1b2d2d7be9d568a646db79b8ee6a0e1e1bb4cd33735602ed96bc0`, also recorded in
+  `PROGRAM_SHA256` and re-checked by the *Reproducible program build* workflow.
+- Do not deploy a binary built on an ARM64 machine (including the Spark): it is valid but
+  has a different hash (`4fbf18f6…`), so third parties building on x86_64 could not match it.
+- Download the release asset and check it before deploying:
 
 ```sh
-git checkout v0.1.0 && bash scripts/build-sbf.sh && sha256sum target/deploy/seal_wallet.so
+gh release download v0.1.1 -R qcommit/quantum-seal-wallet -p seal_wallet.so
+sha256sum --check PROGRAM_SHA256
 ```
 
 ## 2. Rehearsed on devnet (done)
 
 - Upgradeable copy `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` and an immutable copy
-  `2o7mAz2WBJhtmTHBbddRrLF3oc7UN2G5fxHpnzyhqjhq` (the mainnet configuration) both ran
+  `9roN31b3XtdWLeuVYer6W9WkXR64hPNHu8F382jBStqi` (the mainnet configuration), both the
+  canonical binary, ran
   real create → SOL → SPL flows; see `evidence/devnet-rehearsal*.json`.
 - The browser extension created, set up and sent on devnet in its own smoke test.
 
@@ -36,7 +41,7 @@ git checkout v0.1.0 && bash scripts/build-sbf.sh && sha256sum target/deploy/seal
 ## 4. Deploy and make immutable
 
 ```sh
-solana program deploy target/deploy/seal_wallet.so \
+solana program deploy seal_wallet.so \
   --program-id program-keypair.json --keypair deployer.json \
   --url https://api.mainnet-beta.solana.com --with-compute-unit-price 1000
 solana program set-upgrade-authority <PROGRAM_ID> --final \
@@ -52,7 +57,7 @@ refuses any program that still has an upgrade authority.
 ```sh
 export QS_RPC_URL=https://api.mainnet-beta.solana.com
 node sdk/src/network-cli.mjs network-config --cluster mainnet-beta --program <PROGRAM_ID> \
-  --binary target/deploy/seal_wallet.so --out mainnet.network.json
+  --binary seal_wallet.so --out mainnet.network.json
 node sdk/src/network-cli.mjs check-network --config mainnet.network.json
 ```
 
@@ -63,7 +68,7 @@ node sdk/src/network-cli.mjs check-network --config mainnet.network.json
 ```sh
 cd ../quantum-seal-extension
 node scripts/pin-deployment.mjs --cluster mainnet-beta --program <PROGRAM_ID> \
-  --binary ../quantum-seal-wallet/target/deploy/seal_wallet.so
+  --binary /path/to/release/seal_wallet.so
 npm run build && npm test && npm run e2e
 ```
 
