@@ -107,7 +107,7 @@ try {
       SystemProgram.transfer({
         fromPubkey: funder.publicKey,
         toPubkey: payer.publicKey,
-        lamports: 400000000n,
+        lamports: 100000000n, // proof deposit (refunded each send), wallet rent and fees
       }),
     ],
     [funder],
@@ -124,7 +124,7 @@ try {
       SystemProgram.transfer({
         fromPubkey: funder.publicKey,
         toPubkey: new PublicKey(descriptor.wallet),
-        lamports: 100000000n,
+        lamports: 30000000n, // enough for the 0.01 SOL transfer, refunds and the rent reserve
       }),
     ],
     [funder],
