@@ -84,7 +84,7 @@ Today both keys are managed with the command line. The intended consumer client 
 
 ## Devnet rehearsal
 
-On devnet, `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` (upgradeable, for testing) runs the current v0.2.0 binary; `9roN31b3XtdWLeuVYer6W9WkXR64hPNHu8F382jBStqi` is an immutable copy of the v0.1.1 binary that rehearsed the mainnet configuration (v0.2.0 differs only by rejecting fee refunds on guardian proposals). An earlier immutable copy of the ARM64 build, `2o7mAz2WBJhtmTHBbddRrLF3oc7UN2G5fxHpnzyhqjhq`, remains from the first rehearsal. [`tests/devnet-rehearsal.mjs`](tests/devnet-rehearsal.mjs) runs real create → SOL transfer → classic SPL transfer flows and records [evidence/devnet-rehearsal.json](evidence/devnet-rehearsal.json) and [evidence/devnet-rehearsal-immutable.json](evidence/devnet-rehearsal-immutable.json):
+On devnet, `HPopUzhpfG7Zn7BBuQ9FkJKSRB9e3vfgwrySCG7b7wHy` is an immutable deployment of the v0.2.0 binary, the exact mainnet configuration; the browser extension's devnet build uses it. Earlier rehearsal deployments: `9roN31b3XtdWLeuVYer6W9WkXR64hPNHu8F382jBStqi` (immutable, v0.1.1) and `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` (upgradeable test deployment, since closed). An earlier immutable copy of the ARM64 build, `2o7mAz2WBJhtmTHBbddRrLF3oc7UN2G5fxHpnzyhqjhq`, remains from the first rehearsal. [`tests/devnet-rehearsal.mjs`](tests/devnet-rehearsal.mjs) runs real create → SOL transfer → classic SPL transfer flows and records [evidence/devnet-rehearsal.json](evidence/devnet-rehearsal.json) and [evidence/devnet-rehearsal-immutable.json](evidence/devnet-rehearsal-immutable.json):
 
 | Measurement | Devnet result |
 | --- | ---: |

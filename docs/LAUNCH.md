@@ -19,8 +19,8 @@ sha256sum --check PROGRAM_SHA256
 
 ## 2. Rehearsed on devnet (done)
 
-- Upgradeable copy `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` (v0.2.0) and an immutable copy
-  `9roN31b3XtdWLeuVYer6W9WkXR64hPNHu8F382jBStqi` (v0.1.1, the mainnet configuration) ran
+- Immutable v0.2.0 deployment `HPopUzhpfG7Zn7BBuQ9FkJKSRB9e3vfgwrySCG7b7wHy` (the exact mainnet
+  configuration, canonical binary) ran
   real create → SOL → SPL flows; see `evidence/devnet-rehearsal*.json`.
 - The browser extension created, set up and sent on devnet in its own smoke test.
 
