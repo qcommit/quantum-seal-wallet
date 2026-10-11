@@ -8,7 +8,7 @@ Quantum Seal Wallet is a Solana program, JavaScript SDK and command line, and an
 | --- | --- |
 | Wallet program | Reproducible canonical build (`seal_wallet.so` v0.2.0, 141,888 bytes, SHA-256 `e5442efb…d00d37`, checked by CI); deployed and rehearsed on **devnet**; **not yet deployed to mainnet** |
 | Network client | Mainnet-ready: pins genesis, program ID, binary hash and immutability before every submission |
-| Validation | Local validator: 311 transactions across two suites; devnet: real create, SOL and SPL transfer runs against upgradeable and immutable deployments; 491 tamper cases rejected; 28 NIST vector comparisons |
+| Validation | Local validator: 311 transactions across two suites, run by CI on every push against the canonical build; devnet: real create, SOL and SPL transfer runs against upgradeable and immutable deployments; 491 tamper cases rejected; 28 NIST vector comparisons |
 | Audit | **Not independently audited.** Do not deposit real funds until a reviewed program is deployed |
 | Wallet app | Command line, plus a browser extension in a separate repository (see [How people will use it](#how-people-will-use-it)) |
 
