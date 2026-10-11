@@ -53,7 +53,7 @@ export async function submitNetwork(connection, payer, instructions, options = {
     computeUnitPrice = 0n,
     maxFeeLamports = 100000n,
     confirmationTimeoutMs = 120000,
-    pollIntervalMs = 500,
+    pollIntervalMs = network?.cluster === 'localnet' ? 500 : 1500,
   } = options;
   const deployment = await assertNetwork(connection, network);
   const { commitment } = deployment;

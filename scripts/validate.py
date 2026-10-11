@@ -60,7 +60,10 @@ report = {'status':'passed','recordedAt':time.strftime('%Y-%m-%dT%H:%M:%SZ',time
     'networkClientLocalnet': {k: json.loads((EVIDENCE/'network-localnet.json').read_text())[k] for k in ['status','transactionCount','maxWireBytes','maxComputeUnits','publicTransactions']},
     'artifacts':{name:{'bytes':(ROOT/name).stat().st_size,'sha256':hashlib.sha256((ROOT/name).read_bytes()).hexdigest()}
                  for name in ['target/deploy/seal_wallet.so','target/release/seal-verify']},
-    'notPerformed':['Independent security audit','Public-cluster deployment','GitHub-hosted workflow run',
-                    'Full ACVP corpus','RustSec advisory scan','Browser/mobile wallet testing']}
+    'devnetRehearsal': {k: json.loads((EVIDENCE/'devnet-rehearsal.json').read_text()).get(k)
+                        for k in ['status','program','programSha256','transactionCount','totalFeeLamports']}
+                       if (EVIDENCE/'devnet-rehearsal.json').exists() else None,
+    'notPerformed':['Independent third-party security audit','Mainnet deployment',
+                    'Full ACVP corpus','RustSec advisory scan','Mobile wallet testing']}
 (EVIDENCE/'validation.json').write_text(json.dumps(report,indent=2)+'\n')
 print('Validation passed:',report['rustTestFunctions'],'Rust tests,',report['javascriptTests'],'JS tests,',report['localnetTransactions'],'local transactions.')

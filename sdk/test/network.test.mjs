@@ -296,3 +296,34 @@ test('wallet status and transfer preparation verify state and retain rent', asyn
   await assert.rejects(prepareSolTransfer(network, d, { to: d.wallet, amount: '0.1' }), /Self/);
   assert.equal(c.calls.sends, 0);
 });
+
+test('rate-limited RPC responses are retried with backoff, other errors are not', async () => {
+  const { rateLimitedFetch } = await import('../src/network.mjs');
+  let calls = 0;
+  const flaky = async () => {
+    calls++;
+    return calls < 3
+      ? new Response('', { status: 429, headers: { 'retry-after': '0' } })
+      : new Response('{"ok":true}', { status: 200 });
+  };
+  const fetch = rateLimitedFetch(flaky, { baseMs: 1 });
+  assert.equal((await fetch('https://rpc.invalid', { method: 'POST' })).status, 200);
+  assert.equal(calls, 3);
+  calls = 0;
+  const failing = async () => {
+    calls++;
+    return new Response('', { status: 500 });
+  };
+  assert.equal((await rateLimitedFetch(failing, { baseMs: 1 })('https://rpc.invalid')).status, 500);
+  assert.equal(calls, 1);
+  calls = 0;
+  const always = async () => {
+    calls++;
+    return new Response('', { status: 429 });
+  };
+  assert.equal(
+    (await rateLimitedFetch(always, { attempts: 3, baseMs: 1 })('https://rpc.invalid')).status,
+    429,
+  );
+  assert.equal(calls, 3);
+});

@@ -1,1 +1,3 @@
-    Finished `release` profile [optimized] target(s) in 0.03s
+   Compiling seal-wallet-core v0.1.0 (<repo>/crates/wallet-core)
+   Compiling seal-verify v0.1.0 (<repo>/crates/seal-verify)
+    Finished `release` profile [optimized] target(s) in 2.94s

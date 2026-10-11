@@ -13,6 +13,8 @@ import {
   WALLET_BYTES,
   PROOF_BYTES,
   MAX_FEE_REFUND,
+  intentDigest,
+  deriveProof,
   MAINNET_GENESIS,
   MIN_MAINNET_RECOVERY_DELAY,
 } from './codec.mjs';
@@ -376,9 +378,24 @@ export async function executionCost(network, approvals = 1, maxFeeLamports = 100
 export async function executeApprovals(network, payer, descriptor, approvals, options = {}) {
   const ready = await validateApprovals(network, descriptor, approvals);
   const cost = await executionCost(network, approvals.length, options.maxFeeLamports);
+  // A resumed send already paid rent for the proof accounts it created; only proofs
+  // that do not exist yet still need their deposit.
+  const digest = intentDigest(ready.bytes);
+  let existing = 0n;
+  for (const proof of ready.parsed) {
+    const { proof: address_ } = await deriveProof(
+      network.program,
+      ready.current.descriptor.wallet,
+      digest,
+      proof.object.index,
+      payer.publicKey,
+    );
+    if (await network.connection.getAccountInfo(address_, network.commitment)) existing++;
+  }
+  const rentEach = cost.refundableProofRentLamports / BigInt(approvals.length);
   if (
     integerAmount(await network.connection.getBalance(payer.publicKey, network.commitment)) <
-    cost.requiredPayerLamports
+    cost.requiredPayerLamports - rentEach * existing
   )
     throw new Error('Fee payer cannot cover the conservative proof-rent and fee budget.');
   const proofs = [];

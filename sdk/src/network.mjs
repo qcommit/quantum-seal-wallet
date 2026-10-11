@@ -145,13 +145,35 @@ export async function inspectDeployment(connection, configuration) {
   });
 }
 
+// Public RPC endpoints throttle with HTTP 429. Those responses mean the request was
+// not processed, so the identical request is retried after a backoff. A retried
+// sendTransaction carries the same signed bytes; the cluster deduplicates by
+// signature, and nothing is re-signed.
+export function rateLimitedFetch(
+  fetchImpl = globalThis.fetch,
+  { attempts = 8, baseMs = 500 } = {},
+) {
+  return async (url, init) => {
+    for (let attempt = 0; ; attempt++) {
+      const response = await fetchImpl(url, {
+        ...init,
+        redirect: 'error',
+        signal: AbortSignal.timeout(15000),
+      });
+      if (response.status !== 429 || attempt + 1 >= attempts) return response;
+      const header = Number(response.headers.get('retry-after'));
+      const wait = Number.isFinite(header) && header > 0 ? header * 1000 : baseMs * 2 ** attempt;
+      await new Promise((resolve) => setTimeout(resolve, Math.min(wait, 15000)));
+    }
+  };
+}
+
 export async function openNetwork(input, connection) {
   const config = parseNetwork(input);
   connection ??= new Connection(config.rpc, {
     commitment: config.cluster === 'localnet' ? 'confirmed' : 'finalized',
     disableRetryOnRateLimit: true,
-    fetch: (url, init) =>
-      globalThis.fetch(url, { ...init, redirect: 'error', signal: AbortSignal.timeout(15000) }),
+    fetch: rateLimitedFetch(),
   });
   const deployment = await inspectDeployment(connection, config);
   const session = Object.freeze({ connection, ...deployment });

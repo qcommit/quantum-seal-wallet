@@ -6,11 +6,11 @@ Quantum Seal Wallet is a Solana program, JavaScript SDK and command line, and an
 
 | Status | |
 | --- | --- |
-| Wallet program | Builds reproducibly (`seal_wallet.so`, 138 KB); **ready to deploy, not yet deployed** to a public cluster |
+| Wallet program | Builds reproducibly (`seal_wallet.so`, 141,744 bytes); deployed and rehearsed on **devnet**; **not yet deployed to mainnet** |
 | Network client | Mainnet-ready: pins genesis, program ID, binary hash and immutability before every submission |
-| Validation | Local validator: 241 transactions across two suites, 491 tamper cases rejected, 28 NIST vector comparisons |
+| Validation | Local validator: 273 transactions across two suites; devnet: 33 real transactions (create, SOL and SPL transfers); 491 tamper cases rejected; 28 NIST vector comparisons |
 | Audit | **Not independently audited.** Do not deposit real funds until a reviewed program is deployed |
-| Wallet app | Command line today; a browser extension is the planned user client (see [How people will use it](#how-people-will-use-it)) |
+| Wallet app | Command line, plus a browser extension in a separate repository (see [How people will use it](#how-people-will-use-it)) |
 
 Website: https://quantum-seal.vercel.app
 
@@ -67,7 +67,7 @@ The program verifies staged proofs in multiple instructions because SLH-DSA sign
 The program is ready to deploy; nothing in this repository deploys it automatically. The full operator procedure is in [docs/MAINNET.md](docs/MAINNET.md).
 
 1. **Build** the pinned binary: `bash scripts/build-sbf.sh` (writes `target/deploy/seal_wallet.so`, about 138 KB).
-2. **Choose the deployment signer and fund it.** Program rent for a 138 KB binary is roughly 1 SOL, plus about the same again held temporarily in the upload buffer during deployment and returned afterwards.
+2. **Choose the deployment signer and fund it.** Program rent for the 141,744-byte binary is about 0.99 SOL at mainnet rent rates (0.72 SOL on devnet, which charges less), plus about the same again held temporarily in the upload buffer during deployment and returned afterwards.
 3. **Deploy to devnet first** with the official Solana tools and run the full create → transfer flow against it.
 4. **Deploy the reviewed build to mainnet and make it immutable.** The mainnet client refuses mutable programs, because an upgrade authority could replace the checks protecting every wallet. Removing the upgrade authority is irreversible.
 5. **Pin it:** `network-config` records the program ID, binary hash and cluster; `check-network` must pass before any wallet uses it.
@@ -81,6 +81,19 @@ Users hold their own keys and pay their own fees; there is no hosted relayer.
 - **Wallet address:** the PDA. Deposits go here, and it stays the same across key rotation and recovery.
 
 Today both keys are managed with the command line. The intended consumer client is a **browser extension** in the style of Phantom: it keeps the owner key in extension storage, shows the decoded transfer in its own window before sealing, signs locally, and submits with the user's fee key. That client is a separate project and needs its own security review.
+
+## Devnet rehearsal
+
+The current program is deployed on devnet at `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` (upgradeable, for testing). [`tests/devnet-rehearsal.mjs`](tests/devnet-rehearsal.mjs) runs real create → SOL transfer → classic SPL transfer flows against it and records [evidence/devnet-rehearsal.json](evidence/devnet-rehearsal.json):
+
+| Measurement | Devnet result |
+| --- | ---: |
+| Transactions per transfer | 16 |
+| Base fees per transfer | 80,000 lamports (0.00008 SOL) |
+| Refundable proof deposit | 0.0569 SOL, returned in the same send |
+| Time per transfer, end to end | 79–87 s |
+| Largest compute use (verification batch) | 489,321 CU |
+| Signing time (JavaScript) | about 1.0 s |
 
 ## Reproduce the local checks
 
@@ -142,21 +155,22 @@ That extracted key is suitable **only for reproducing the known test fixture**. 
 
 ## Validation evidence
 
-The included [validation report](evidence/validation.json) records the following on **October 10, 2026**:
+The included [validation report](evidence/validation.json) records the following on **October 11, 2026**:
 
 | Check | Recorded result |
 | --- | ---: |
-| Rust test functions | 22 |
-| JavaScript tests | 32 |
+| Rust test functions | 26 |
+| JavaScript tests | 39 |
 | Selected NIST comparisons | 28 |
 | Signature-component mutations | 491 |
-| Confirmed local-validator transactions | 203 (+38 in the network-client suite) |
-| Expected rejected transactions | 16 |
-| Program SBF compilation | Passed |
-| Maximum observed transaction size | 1,048 bytes |
-| Maximum observed transaction compute | 501,578 CU |
+| Confirmed local-validator transactions | 219 (+54 in the network-client suite) |
+| Expected rejected transactions | 17 |
+| Devnet rehearsal transactions | 33 |
+| Program SBF compilation | Passed (`4fbf18f6…a7049`, 141,744 bytes) |
+| Maximum observed transaction size | 1,060 bytes |
+| Maximum observed transaction compute | 524,605 CU |
 
-The recorded localnet suite exercised 2-of-2 SOL execution, replay protection, changing owner policy without changing the deposit address, old-epoch rejection, staged signature corruption, SPL Token CPI, failed-CPI rollback, delayed guardian recovery, owner cancellation and proof-rent reclamation. It includes **24 localnet assertions**.
+The recorded localnet suites exercise 2-of-2 SOL execution, replay protection, changing owner policy without changing the deposit address, old-epoch rejection, staged signature corruption, SPL Token CPI, failed-CPI rollback, delayed guardian recovery, owner cancellation, guardian approvals that try to spend, signed fee refunds (including a tampered refund account and the CPI path), the expiry horizon, interrupted-upload resumption and proof-rent reclamation. They include **26 + 15 localnet assertions**.
 
 Performance measurements are in [evidence/benchmark.json](evidence/benchmark.json) and were made on Linux ARM64 with Node 24 using ten measured samples. The median SDK signing time, **including a self-check**, was approximately **953 ms**; median SDK verification was **1.13 ms**, and the independent Rust CLI including process startup was **3.00 ms**. Those are local measurements, **not** guarantees across devices or networks.
 
