@@ -340,6 +340,8 @@ fn execute(program: &Pubkey, accounts: &[AccountInfo], data: &[u8]) -> ChainResu
         proofs.push(h);
     }
     let guardian = matches!(intent.action, Action::ProposeRecovery(_));
+    // A guardian approval can never move funds, not even as a fee refund.
+    require(!(guardian && intent.fee.is_some()), Error::InvalidFeeRefund)?;
     authorize(&wallet, &proofs, &digest, guardian, slot)?;
     let is_proof = |key: &Pubkey| accounts[1..=count].iter().any(|p| p.key == key);
     // A version-2 intent names its fee-refund recipient; it is always the last account.

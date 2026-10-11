@@ -139,7 +139,7 @@ try {
     [SystemProgram.transfer({ fromPubkey: payer.publicKey, toPubkey: to, lamports: 1000000n })],
     { label: 'fund-recipient' },
   );
-  const makeIntent = async (action) => {
+  const makeIntent = async (action, fee) => {
     const w = await walletState(connection, program, wallet);
     return encodeIntent({
       genesis,
@@ -149,6 +149,7 @@ try {
       nonce: w.nonce,
       expiry: BigInt(await connection.getSlot('confirmed')) + 20000n,
       action,
+      fee,
     });
   };
   const approve = async (bytes, key, index) =>
@@ -392,6 +393,16 @@ try {
     7011,
   );
   const recoveryAction = { kind: 'recover', owners: { keys: [a.publicKey], threshold: 1 } };
+  const refundedRecoveryBytes = await makeIntent(recoveryAction, {
+      to: payer.publicKey,
+      lamports: 10000000n,
+    }),
+    refundedRecoveryProof = await approve(refundedRecoveryBytes, guardian, 255);
+  await rejected(
+    'a guardian recovery proposal cannot carry a fee refund',
+    [executeInstruction(refundedRecoveryBytes, [refundedRecoveryProof])],
+    7024,
+  );
   const recoveryBytes = await makeIntent(recoveryAction),
     recoveryProof = await approve(recoveryBytes, guardian, 255);
   const beforeProposal = await walletState(connection, program, wallet);
@@ -451,6 +462,7 @@ try {
     tokenProof,
     failProof,
     guardianSpendProof,
+    refundedRecoveryProof,
     recoveryProof,
     cancelProof,
     nextProof,

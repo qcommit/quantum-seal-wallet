@@ -301,6 +301,86 @@ try {
   check('one owner approval uploaded twice by different uploaders counts once');
   otherOwner.secretKey.fill(0);
 
+  // Account-layout edge cases around the fee refund.
+  const edge = await prepareSolTransfer(network, descriptor, {
+    to: recipient,
+    amount: '0.001',
+    expiresInSlots: 20000n,
+    // An account that appears nowhere else in the transaction: the fee payer and the
+    // transfer target are writable at the transaction level, which overrides a read-only meta.
+    feeRefund: { to: secondUploader.publicKey, lamports: refund },
+  });
+  const edgeProof = await uploadApproval(
+    network.connection,
+    payer,
+    serializeApproval(signApproval(edge.bytes, owner.secretKey, 0)),
+    {
+      network,
+      expectedProgram: network.program,
+      expectedWallet: descriptor.wallet,
+      onRecord: record,
+    },
+  );
+  const readOnlyFee = executeInstruction(edge.bytes, [edgeProof]);
+  readOnlyFee.keys[readOnlyFee.keys.length - 1] = { ...readOnlyFee.keys.at(-1), isWritable: false };
+  await assert.rejects(
+    submit(network.connection, payer, [readOnlyFee], {
+      network,
+      label: 'read-only-refund',
+      onRecord: record,
+    }),
+    /"Custom":"?7005"?/,
+  );
+  check('a read-only fee-refund account is rejected');
+  const v1 = await prepareSolTransfer(network, descriptor, {
+    to: recipient,
+    amount: '0.001',
+    expiresInSlots: 20000n,
+  });
+  const v1Proof = await uploadApproval(
+    network.connection,
+    payer,
+    serializeApproval(signApproval(v1.bytes, owner.secretKey, 0)),
+    {
+      network,
+      expectedProgram: network.program,
+      expectedWallet: descriptor.wallet,
+      onRecord: record,
+    },
+  );
+  const extra = executeInstruction(v1.bytes, [v1Proof]);
+  extra.keys.push({ pubkey: payer.publicKey, isWritable: true, isSigner: false });
+  await assert.rejects(
+    submit(network.connection, payer, [extra], {
+      network,
+      label: 'v1-extra-account',
+      onRecord: record,
+    }),
+    /"Custom":"?7022"?/,
+  );
+  check('a version-1 intent with an extra trailing account is rejected');
+  // Refund recipient equal to the transfer target: both amounts arrive.
+  const same = await prepareSolTransfer(network, descriptor, {
+    to: recipient,
+    amount: '0.002',
+    expiresInSlots: 20000n,
+    feeRefund: { to: recipient, lamports: refund },
+  });
+  const sameBefore = BigInt(await network.connection.getBalance(recipient, 'confirmed'));
+  const sameSent = await executeApprovals(
+    network,
+    payer,
+    descriptor,
+    [serializeApproval(signApproval(same.bytes, owner.secretKey, 0))],
+    { onRecord: record },
+  );
+  assert.equal(sameSent.executed, true);
+  assert.equal(
+    BigInt(await network.connection.getBalance(recipient, 'confirmed')) - sameBefore,
+    2000000n + refund,
+  );
+  check('a fee refund to the transfer recipient pays both amounts');
+
   // The program itself refuses approvals that expire beyond the one-day horizon.
   const state = (await walletStatus(network, descriptor)).state;
   const far = encodeIntent({
