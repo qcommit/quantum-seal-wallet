@@ -41,3 +41,36 @@ jobs:
       - run: python3 tests/cli-pty.py
       - name: Check public-release files
         run: python3 scripts/check-release.py
+
+  # The adversarial local-validator suites (scripts/test-localnet.sh: sandboxed container,
+  # no network) against the program built here and checked against its canonical hash.
+  localnet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      CARGO_BUILD_JOBS: 4
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install the pinned Rust toolchain
+        run: rustup toolchain install 1.89.0 --profile minimal
+      - name: Install Agave 3.1.10 (validator, cargo-build-sbf)
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/v3.1.10/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+      - name: Build the wallet program and check its canonical hash
+        run: |
+          bash scripts/build-sbf.sh
+          (cd target/deploy && sha256sum --check ../../PROGRAM_SHA256)
+      - run: npm ci --ignore-scripts --no-fund
+      - name: Local-validator suites
+        run: bash scripts/test-localnet.sh
+      - name: Summary
+        if: always()
+        run: |
+          node -e "for (const f of ['evidence/localnet.json','evidence/network-localnet.json']) { try { const d=require('./'+f); console.log(f, d.status, d.transactionCount ?? d.transactions?.length, 'tx'); } catch (e) { console.log(f, 'missing'); } }"
