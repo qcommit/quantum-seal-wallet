@@ -6,7 +6,7 @@ Quantum Seal Wallet is a Solana program, JavaScript SDK and command line, and an
 
 | Status | |
 | --- | --- |
-| Wallet program | Reproducible canonical build (`seal_wallet.so`, 141,744 bytes, SHA-256 `c53d5da2…d96bc0`, checked by CI); deployed and rehearsed on **devnet**; **not yet deployed to mainnet** |
+| Wallet program | Reproducible canonical build (`seal_wallet.so` v0.2.0, 141,888 bytes, SHA-256 `e5442efb…d00d37`, checked by CI); deployed and rehearsed on **devnet**; **not yet deployed to mainnet** |
 | Network client | Mainnet-ready: pins genesis, program ID, binary hash and immutability before every submission |
 | Validation | Local validator: 264 transactions across two suites; devnet: real create, SOL and SPL transfer runs against upgradeable and immutable deployments; 491 tamper cases rejected; 28 NIST vector comparisons |
 | Audit | **Not independently audited.** Do not deposit real funds until a reviewed program is deployed |
@@ -67,7 +67,7 @@ The program verifies staged proofs in multiple instructions because SLH-DSA sign
 The program is ready to deploy; nothing in this repository deploys it automatically. The full operator procedure is in [docs/MAINNET.md](docs/MAINNET.md).
 
 1. **Use the canonical binary**: the `seal_wallet.so` attached to the release, built by the *Reproducible program build* workflow on GitHub's x86_64 runners with Agave 3.1.10, and matching [`PROGRAM_SHA256`](PROGRAM_SHA256). Rebuilding on ARM64 gives a different hash (see [Canonical build](#canonical-build)).
-2. **Choose the deployment signer and fund it.** Program rent for the 141,744-byte binary is about 0.99 SOL at mainnet rent rates (0.72 SOL on devnet, which charges less), plus about the same again held temporarily in the upload buffer during deployment and returned afterwards.
+2. **Choose the deployment signer and fund it.** Program rent for the 141,888-byte binary is about 0.99 SOL at mainnet rent rates (0.72 SOL on devnet, which charges less), plus about the same again held temporarily in the upload buffer during deployment and returned afterwards.
 3. **Deploy to devnet first** with the official Solana tools and run the full create → transfer flow against it.
 4. **Deploy the reviewed build to mainnet and make it immutable.** The mainnet client refuses mutable programs, because an upgrade authority could replace the checks protecting every wallet. Removing the upgrade authority is irreversible.
 5. **Pin it:** `network-config` records the program ID, binary hash and cluster; `check-network` must pass before any wallet uses it.
@@ -84,7 +84,7 @@ Today both keys are managed with the command line. The intended consumer client 
 
 ## Devnet rehearsal
 
-The canonical binary is deployed twice on devnet: `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` (upgradeable, for testing) and `9roN31b3XtdWLeuVYer6W9WkXR64hPNHu8F382jBStqi` (immutable, the mainnet configuration). An earlier immutable copy of the ARM64 build, `2o7mAz2WBJhtmTHBbddRrLF3oc7UN2G5fxHpnzyhqjhq`, remains from the first rehearsal. [`tests/devnet-rehearsal.mjs`](tests/devnet-rehearsal.mjs) runs real create → SOL transfer → classic SPL transfer flows and records [evidence/devnet-rehearsal.json](evidence/devnet-rehearsal.json) and [evidence/devnet-rehearsal-immutable.json](evidence/devnet-rehearsal-immutable.json):
+On devnet, `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` (upgradeable, for testing) runs the current v0.2.0 binary; `9roN31b3XtdWLeuVYer6W9WkXR64hPNHu8F382jBStqi` is an immutable copy of the v0.1.1 binary that rehearsed the mainnet configuration (v0.2.0 differs only by rejecting fee refunds on guardian proposals). An earlier immutable copy of the ARM64 build, `2o7mAz2WBJhtmTHBbddRrLF3oc7UN2G5fxHpnzyhqjhq`, remains from the first rehearsal. [`tests/devnet-rehearsal.mjs`](tests/devnet-rehearsal.mjs) runs real create → SOL transfer → classic SPL transfer flows and records [evidence/devnet-rehearsal.json](evidence/devnet-rehearsal.json) and [evidence/devnet-rehearsal-immutable.json](evidence/devnet-rehearsal-immutable.json):
 
 | Measurement | Devnet result |
 | --- | ---: |
@@ -99,9 +99,8 @@ The canonical binary is deployed twice on devnet: `6LBRd57jagVvhmpX1idsw9QXhoNHM
 
 The program bytes depend on the host architecture of the official toolchain: the same
 source and the same Agave 3.1.10 / platform-tools v1.52 produce
-`c53d5da22ae1b2d2d7be9d568a646db79b8ee6a0e1e1bb4cd33735602ed96bc0` on Linux x86_64 and
-`4fbf18f66470322941b907adf03ebcd995385d35ac8c7ae4e3aa5ef63dd7a049` on Linux ARM64
-(1,826 bytes of generated code differ). Both are deterministic on their own platform.
+different bytes on Linux x86_64 and Linux ARM64 (for v0.1.1: `c53d5da2…` and `4fbf18f6…`;
+1,826 bytes of generated code differ). Both are deterministic on their own platform.
 **The x86_64 build is canonical**, because that is where most verifiers build: the
 *Reproducible program build* workflow rebuilds it on GitHub's runners and fails unless it
 matches [`PROGRAM_SHA256`](PROGRAM_SHA256). Deploy only that binary.
@@ -177,7 +176,7 @@ The included [validation report](evidence/validation.json) records the following
 | Confirmed local-validator transactions | 186 (+78 in the network-client suite) |
 | Expected rejected transactions | 17 |
 | Devnet rehearsal transactions | 25 per run (create, SOL transfer, SPL transfer) |
-| Program SBF compilation | Passed: canonical x86_64 `c53d5da2…d96bc0`; local ARM64 `4fbf18f6…a7049` (141,744 bytes each) |
+| Program SBF compilation | Passed: canonical x86_64 `e5442efb…d00d37` (v0.2.0); local ARM64 `066ad312…` (141,888 bytes each) |
 | Maximum observed transaction size | 1,145 bytes |
 | Maximum observed transaction compute | 513,117 CU |
 

@@ -5,23 +5,22 @@ manual deployment and the follow-up edits in the extension and website.
 
 ## 1. Reviewed, reproducible build (done)
 
-- Release `v0.1.1`, canonical `seal_wallet.so` (built on Linux x86_64), 141,744 bytes,
-  SHA-256 `c53d5da22ae1b2d2d7be9d568a646db79b8ee6a0e1e1bb4cd33735602ed96bc0`, also recorded in
+- Release `v0.2.0`, canonical `seal_wallet.so` (built on Linux x86_64), 141,888 bytes,
+  SHA-256 `e5442efbe6b7eccc372826392870b4b7f1ba3bff769deac8908881cc15d00d37`, also recorded in
   `PROGRAM_SHA256` and re-checked by the *Reproducible program build* workflow.
 - Do not deploy a binary built on an ARM64 machine (including the Spark): it is valid but
   has a different hash (`4fbf18f6…`), so third parties building on x86_64 could not match it.
 - Download the release asset and check it before deploying:
 
 ```sh
-gh release download v0.1.1 -R qcommit/quantum-seal-wallet -p seal_wallet.so
+gh release download v0.2.0 -R qcommit/quantum-seal-wallet -p seal_wallet.so
 sha256sum --check PROGRAM_SHA256
 ```
 
 ## 2. Rehearsed on devnet (done)
 
-- Upgradeable copy `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` and an immutable copy
-  `9roN31b3XtdWLeuVYer6W9WkXR64hPNHu8F382jBStqi` (the mainnet configuration), both the
-  canonical binary, ran
+- Upgradeable copy `6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT` (v0.2.0) and an immutable copy
+  `9roN31b3XtdWLeuVYer6W9WkXR64hPNHu8F382jBStqi` (v0.1.1, the mainnet configuration) ran
   real create → SOL → SPL flows; see `evidence/devnet-rehearsal*.json`.
 - The browser extension created, set up and sent on devnet in its own smoke test.
 

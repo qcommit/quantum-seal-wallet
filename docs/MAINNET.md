@@ -32,7 +32,7 @@ Solana consensus, fee-payer signatures, external programs, or bridges post-quant
 
 ## Operator deployment (separate from using a wallet)
 
-Measured on devnet (see `evidence/devnet-rehearsal.json`): the 141,744-byte program
+Measured on devnet (see `evidence/devnet-rehearsal.json`): the 141,888-byte program
 locks about 0.72 SOL of rent on devnet and about 0.99 SOL at mainnet rent rates; a
 deployment also holds a temporary upload buffer of similar size, returned when the
 deployment completes. Each transfer is 12 transactions and 60,000 lamports of base fees.
