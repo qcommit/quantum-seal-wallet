@@ -28,6 +28,13 @@ jobs:
         run: |
           cargo-build-sbf --version
           bash scripts/build-sbf.sh
+      - name: Keep the built binary for inspection
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: seal_wallet-${{ github.sha }}
+          path: target/deploy/seal_wallet.so
+          if-no-files-found: ignore
       - name: Compare with the recorded release hash
         run: |
           cd target/deploy
