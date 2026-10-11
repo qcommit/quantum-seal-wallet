@@ -132,12 +132,20 @@ export async function uploadApproval(
     proof: started.proof,
     uploader: payer.publicKey,
   };
+  // Steps are combined where one atomic transaction can hold them: opening the proof
+  // account with the first chunk, and the final chunk with sealing and the full
+  // eight-step verification. A resumed upload continues from the on-chain state.
+  const combineFinal = verificationBatchSize === 8;
+  const verifyAll = () => Array.from({ length: 8 }, () => stepInstruction(options));
   let account = await connection.getAccountInfo(started.proof, commitment);
   if (!account) {
-    await submit(connection, payer, [started.instruction], {
-      ...sendOptions,
-      label: 'begin-proof',
-    });
+    const first = p.signature.slice(0, MAX_CHUNK_BYTES);
+    await submit(
+      connection,
+      payer,
+      [started.instruction, appendInstruction({ ...options, offset: 0, chunk: first })],
+      { ...sendOptions, label: 'begin-proof+upload-chunk' },
+    );
     account = await connection.getAccountInfo(started.proof, commitment);
   }
   if (!account || !account.owner.equals(intent.program))
@@ -149,17 +157,27 @@ export async function uploadApproval(
   )
     throw new Error('Existing upload contains different signature bytes.');
   if (header.stage === 0) {
+    let sealed = false;
     for (let offset = header.uploaded; offset < p.signature.length; offset += MAX_CHUNK_BYTES) {
       const chunk = p.signature.slice(offset, offset + MAX_CHUNK_BYTES);
-      await submit(connection, payer, [appendInstruction({ ...options, offset, chunk })], {
-        ...sendOptions,
-        label: 'upload-chunk',
-      });
+      const append = appendInstruction({ ...options, offset, chunk });
+      if (combineFinal && offset + chunk.length === p.signature.length) {
+        await submit(connection, payer, [append, sealInstruction(options), ...verifyAll()], {
+          ...sendOptions,
+          label: 'upload-chunk+seal-proof+verify-batch-1-8',
+        });
+        sealed = true;
+      } else {
+        await submit(connection, payer, [append], { ...sendOptions, label: 'upload-chunk' });
+      }
     }
-    await submit(connection, payer, [sealInstruction(options)], {
-      ...sendOptions,
-      label: 'seal-proof',
-    });
+    if (!sealed)
+      await submit(
+        connection,
+        payer,
+        combineFinal ? [sealInstruction(options), ...verifyAll()] : [sealInstruction(options)],
+        { ...sendOptions, label: combineFinal ? 'seal-proof+verify-batch-1-8' : 'seal-proof' },
+      );
   }
   account = await connection.getAccountInfo(started.proof, commitment);
   header = decodeProofHeader(Uint8Array.from(account.data));

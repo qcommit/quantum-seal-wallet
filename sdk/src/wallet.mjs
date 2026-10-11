@@ -365,7 +365,8 @@ export async function executionCost(network, approvals = 1, maxFeeLamports = 100
   const proofRent = integerAmount(
     await network.connection.getMinimumBalanceForRentExemption(PROOF_BYTES),
   );
-  const transactionsUpperBound = approvals * 15 + 1;
+  // Per approval: open + first chunk, nine middle chunks, final chunk + seal + verify.
+  const transactionsUpperBound = approvals * 11 + 1;
   const feesUpperBound = integerAmount(maxFeeLamports) * BigInt(transactionsUpperBound);
   return {
     transactionsUpperBound,
@@ -408,24 +409,19 @@ export async function executeApprovals(network, payer, descriptor, approvals, op
         expectedWallet: ready.current.descriptor.wallet,
       }),
     );
+  // Execution and the proof-rent refund share one atomic transaction: the proofs were
+  // uploaded by this payer, so closing them cannot fail independently of execution.
   const receipt = await submit(
     network.connection,
     payer,
-    [executeInstruction(ready.bytes, proofs)],
-    { ...options, network, label: 'execute-wallet-transfer' },
+    [
+      executeInstruction(ready.bytes, proofs),
+      ...proofs.map((proof) =>
+        closeProofInstruction({ program: network.program, proof, uploader: payer.publicKey }),
+      ),
+    ],
+    { ...options, network, label: 'execute-wallet-transfer+reclaim-proof-rent' },
   );
   const cleanupErrors = [];
-  for (const proof of proofs) {
-    try {
-      await submit(
-        network.connection,
-        payer,
-        [closeProofInstruction({ program: network.program, proof, uploader: payer.publicKey })],
-        { ...options, network, label: 'reclaim-proof-rent' },
-      );
-    } catch (error) {
-      cleanupErrors.push({ proof: proof.toBase58(), error: error.message });
-    }
-  }
   return { executed: true, receipt, cleanupErrors };
 }

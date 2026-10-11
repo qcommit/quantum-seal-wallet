@@ -8,7 +8,7 @@ Quantum Seal Wallet is a Solana program, JavaScript SDK and command line, and an
 | --- | --- |
 | Wallet program | Builds reproducibly (`seal_wallet.so`, 141,744 bytes); deployed and rehearsed on **devnet**; **not yet deployed to mainnet** |
 | Network client | Mainnet-ready: pins genesis, program ID, binary hash and immutability before every submission |
-| Validation | Local validator: 318 transactions across two suites; devnet: 33 real transactions (create, SOL and SPL transfers); 491 tamper cases rejected; 28 NIST vector comparisons |
+| Validation | Local validator: 264 transactions across two suites; devnet: real create, SOL and SPL transfer runs against upgradeable and immutable deployments; 491 tamper cases rejected; 28 NIST vector comparisons |
 | Audit | **Not independently audited.** Do not deposit real funds until a reviewed program is deployed |
 | Wallet app | Command line, plus a browser extension in a separate repository (see [How people will use it](#how-people-will-use-it)) |
 
@@ -77,7 +77,7 @@ The program is ready to deploy; nothing in this repository deploys it automatica
 Users hold their own keys and pay their own fees; there is no hosted relayer.
 
 - **Owner key (post-quantum):** an SLH-DSA key, encrypted locally, that approves transfers. It never leaves the user's device.
-- **Fee key (ordinary Solana):** a separate small Ed25519 key holding a little SOL for network fees. It submits the ~16 transactions a transfer needs but has no authority over the wallet's funds; losing it costs at most its fee balance. Each transfer can carry a signed fee refund (version-2 intent) that the wallet pays back to the fee key, so its balance stays topped up.
+- **Fee key (ordinary Solana):** a separate small Ed25519 key holding a little SOL for network fees. It submits the 12 transactions a transfer needs but has no authority over the wallet's funds; losing it costs at most its fee balance. Each transfer can carry a signed fee refund (version-2 intent) that the wallet pays back to the fee key, so its balance stays topped up.
 - **Wallet address:** the PDA. Deposits go here, and it stays the same across key rotation and recovery.
 
 Today both keys are managed with the command line. The intended consumer client is a **browser extension** in the style of Phantom: it keeps the owner key in extension storage, shows the decoded transfer in its own window before sealing, signs locally, and submits with the user's fee key. That client is a separate project and needs its own security review.
@@ -88,10 +88,10 @@ The current program is deployed twice on devnet: `6LBRd57jagVvhmpX1idsw9QXhoNHMH
 
 | Measurement | Devnet result |
 | --- | ---: |
-| Transactions per transfer | 16 |
-| Base fees per transfer | 80,000 lamports (0.00008 SOL) |
+| Transactions per transfer | 12 (open + first chunk, 9 chunks, last chunk + seal + verify, execute + refund) |
+| Base fees per transfer | 60,000 lamports (0.00006 SOL) |
 | Refundable proof deposit | 0.0569 SOL, returned in the same send |
-| Time per transfer, end to end | 67–87 s across runs (varies with public-RPC conditions) |
+| Time per transfer, end to end | 58–72 s across runs (varies with public-RPC conditions) |
 | Largest compute use (verification batch) | 489,321 CU |
 | Signing time (JavaScript) | about 1.0 s |
 
@@ -163,12 +163,12 @@ The included [validation report](evidence/validation.json) records the following
 | JavaScript tests | 41 |
 | Selected NIST comparisons | 28 |
 | Signature-component mutations | 491 |
-| Confirmed local-validator transactions | 219 (+99 in the network-client suite) |
+| Confirmed local-validator transactions | 186 (+78 in the network-client suite) |
 | Expected rejected transactions | 17 |
-| Devnet rehearsal transactions | 33 |
+| Devnet rehearsal transactions | 25 per run (create, SOL transfer, SPL transfer) |
 | Program SBF compilation | Passed (`4fbf18f6…a7049`, 141,744 bytes) |
-| Maximum observed transaction size | 1,060 bytes |
-| Maximum observed transaction compute | 530,559 CU |
+| Maximum observed transaction size | 1,145 bytes |
+| Maximum observed transaction compute | 513,117 CU |
 
 The recorded localnet suites exercise 2-of-2 SOL execution, replay protection, changing owner policy without changing the deposit address, old-epoch rejection, staged signature corruption, SPL Token CPI, failed-CPI rollback, delayed guardian recovery, owner cancellation, guardian approvals that try to spend, proofs from another wallet, one approval uploaded twice, signed fee refunds (including a tampered refund account and the CPI path), the expiry horizon, interrupted-upload resumption and proof-rent reclamation. They include **26 + 17 localnet assertions**.
 

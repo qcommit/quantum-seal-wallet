@@ -131,7 +131,7 @@ try {
   assert.equal(await network.connection.getBalance(recipient, 'confirmed'), 10000000n);
   assert.equal((await walletStatus(network, descriptor)).state.nonce, 1n);
   assert.equal(
-    events.filter((e) => e.phase === 'confirmed' && e.label === 'upload-chunk').length,
+    events.filter((e) => e.phase === 'confirmed' && e.label.includes('upload-chunk')).length,
     11,
   );
   check('interrupted proof upload resumes with exactly eleven total chunks');
@@ -183,11 +183,11 @@ try {
     payerBeforeExecute = null;
   const refundedSend = await executeApprovals(network, payer, descriptor, [refundApproval], {
     onRecord: async (r) => {
-      if (r.label === 'execute-wallet-transfer' && r.phase === 'prepared')
+      if (r.label.startsWith('execute-wallet-transfer') && r.phase === 'prepared')
         payerBeforeExecute = BigInt(
           await network.connection.getBalance(payer.publicKey, 'confirmed'),
         );
-      if (r.label === 'execute-wallet-transfer' && r.phase === 'confirmed')
+      if (r.label.startsWith('execute-wallet-transfer') && r.phase === 'confirmed')
         executeFee = BigInt(r.feeLamports);
       record(r);
     },
@@ -200,7 +200,7 @@ try {
     3000000n,
   );
   const executeRecord = events.findLast(
-    (e) => e.label === 'execute-wallet-transfer' && e.phase === 'confirmed',
+    (e) => e.label.startsWith('execute-wallet-transfer') && e.phase === 'confirmed',
   );
   const executeTx = await network.connection.getTransaction(executeRecord.signature, {
     commitment: 'confirmed',
@@ -212,7 +212,8 @@ try {
   assert.equal(
     BigInt(executeTx.meta.postBalances[payerIndex]) -
       BigInt(executeTx.meta.preBalances[payerIndex]),
-    refund - executeFee,
+    // The same transaction also closes the proof account, returning its deposit.
+    refund + BigInt(await network.connection.getMinimumBalanceForRentExemption(8049)) - executeFee,
   );
   assert.ok(payerBeforeExecute !== null);
   check('a version-2 transfer pays the exact signed fee refund from the wallet');

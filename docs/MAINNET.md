@@ -35,7 +35,7 @@ Solana consensus, fee-payer signatures, external programs, or bridges post-quant
 Measured on devnet (see `evidence/devnet-rehearsal.json`): the 141,744-byte program
 locks about 0.72 SOL of rent on devnet and about 0.99 SOL at mainnet rent rates; a
 deployment also holds a temporary upload buffer of similar size, returned when the
-deployment completes. Each transfer is 16 transactions and 80,000 lamports of base fees.
+deployment completes. Each transfer is 12 transactions and 60,000 lamports of base fees.
 Rehearse on devnet with `tests/devnet-rehearsal.mjs` (a funded devnet keypair kept
 outside the repository, passed as `QS_DEVNET_FUNDER`) before any mainnet deployment.
 

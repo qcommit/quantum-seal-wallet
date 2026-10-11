@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "recordedAt": "2026-10-11T06:44:34Z",
+  "recordedAt": "2026-10-11T07:02:13Z",
   "checks": [
     {
       "name": "sdk-tests",
@@ -9,7 +9,7 @@
         "test"
       ],
       "exitCode": 0,
-      "seconds": 4.416
+      "seconds": 5.262
     },
     {
       "name": "format",
@@ -19,7 +19,7 @@
         "format:check"
       ],
       "exitCode": 0,
-      "seconds": 0.424
+      "seconds": 0.614
     },
     {
       "name": "rust-format",
@@ -31,7 +31,7 @@
         "--check"
       ],
       "exitCode": 0,
-      "seconds": 0.08
+      "seconds": 0.135
     },
     {
       "name": "clippy",
@@ -58,7 +58,7 @@
         "--workspace"
       ],
       "exitCode": 0,
-      "seconds": 0.569
+      "seconds": 0.673
     },
     {
       "name": "verifier-build",
@@ -71,7 +71,7 @@
         "seal-verify"
       ],
       "exitCode": 0,
-      "seconds": 0.099
+      "seconds": 0.087
     },
     {
       "name": "cli-pty",
@@ -80,7 +80,7 @@
         "tests/cli-pty.py"
       ],
       "exitCode": 0,
-      "seconds": 2.034
+      "seconds": 2.28
     },
     {
       "name": "npm-audit",
@@ -90,7 +90,7 @@
         "--json"
       ],
       "exitCode": 0,
-      "seconds": 0.436
+      "seconds": 0.441
     },
     {
       "name": "build-sbf",
@@ -99,7 +99,7 @@
         "scripts/build-sbf.sh"
       ],
       "exitCode": 0,
-      "seconds": 0.349
+      "seconds": 0.549
     },
     {
       "name": "localnet-run",
@@ -108,21 +108,21 @@
         "scripts/test-localnet.sh"
       ],
       "exitCode": 0,
-      "seconds": 143.18
+      "seconds": 124.491
     }
   ],
   "rustTestFunctions": 26,
   "javascriptTests": 41,
   "nistCaseComparisons": 28,
   "signatureComponentMutations": 491,
-  "localnetTransactions": 219,
+  "localnetTransactions": 186,
   "localnetExpectedRejections": 17,
   "localnetAssertions": 26,
   "networkClientLocalnet": {
     "status": "passed",
-    "transactionCount": 99,
-    "maxWireBytes": 1060,
-    "maxComputeUnits": 498128,
+    "transactionCount": 78,
+    "maxWireBytes": 1145,
+    "maxComputeUnits": 513006,
     "publicTransactions": 0
   },
   "artifacts": {
@@ -139,8 +139,8 @@
     "status": "passed",
     "program": "6LBRd57jagVvhmpX1idsw9QXhoNHMHWstvpeGdSZAexT",
     "programSha256": "4fbf18f66470322941b907adf03ebcd995385d35ac8c7ae4e3aa5ef63dd7a049",
-    "transactionCount": 33,
-    "totalFeeLamports": "165000"
+    "transactionCount": 25,
+    "totalFeeLamports": "125000"
   },
   "notPerformed": [
     "Independent third-party security audit",
