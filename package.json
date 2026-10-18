@@ -21,7 +21,7 @@
   "dependencies": {
     "@noble/hashes": "2.4.0",
     "@noble/post-quantum": "0.7.1",
-    "@solana/web3.js": "3.0.2"
+    "@solana/web3.js": "3.1.0"
   },
   "devDependencies": {
     "prettier": "3.6.2"
